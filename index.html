@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Maths Master">
+
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/x-icon" href="icon.png">
+    <title>Maths Master Pro</title>
+    <style>
+        :root.dark {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --border: #334155;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --warning: #f59e0b;
+            --warning-dark: #d97706;
+            --success: #22c55e;
+            --error: #ef4444;
+            --feedback-bg: rgba(30, 41, 59, 0.85);
+        }
+        
+        :root.light {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --warning: #f59e0b;
+            --warning-dark: #d97706;
+            --success: #10b981;
+            --error: #ef4444;
+            --feedback-bg: rgba(255, 255, 255, 0.88);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 { text-align: center; margin-bottom: 25px; color: var(--primary); font-size: 2rem; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* DOUBLE COLONNE */
+        .config-layout {
+            display: grid;
+            grid-template-columns: 1fr 240px;
+            gap: 30px;
+        }
+
+        @media (max-width: 650px) {
+            .config-layout { grid-template-columns: 1fr; }
+        }
+
+        .config-left { display: flex; flex-direction: column; gap: 20px; }
+        .config-right { 
+            border-left: 1px solid var(--border); 
+            padding-left: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 25px; 
+        }
+
+        @media (max-width: 650px) {
+            .config-right { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 20px; }
+        }
+
+        /* MODES */
+        .mode-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .mode-btn {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            padding: 10px 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .mode-btn.selected { border-color: var(--primary); background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+
+        /* ACTIONS GRILL */
+        .btn-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+        .btn-sub {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        .btn-sub:hover { background: rgba(99, 102, 241, 0.05); color: var(--primary); }
+
+        /* TABLES */
+        .tables-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .table-item input { display: none; }
+        .table-item label {
+            display: block; background: var(--bg); border: 1px solid var(--border);
+            padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; font-weight: 500;
+        }
+        .table-item input:checked + label { background: var(--primary); border-color: var(--primary); color: white; }
+
+        /* SIDEBAR DROITE */
+        .sidebar-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-light); margin-bottom: 10px; }
+        
+        .theme-toggle {
+            width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); border-radius: 8px; cursor: pointer; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .error-blacklist { background: var(--bg); border-radius: 10px; padding: 12px; border: 1px solid var(--border); min-height: 100px; }
+        .blacklist-item { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .blacklist-item:last-child { border-bottom: none; }
+        .blacklist-count { background: rgba(239, 68, 68, 0.15); color: var(--error); padding: 1px 6px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+
+        .switch-container { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 10px; border-radius: 10px; border: 1px solid var(--border); }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* JEU */
+        .game-container { max-width: 500px; margin: 0 auto; }
+        .game-nav { display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold; color: var(--text-light); font-size: 0.9rem; }
+        .question { font-size: 4.5rem; text-align: center; margin: 30px 0; font-weight: 800; letter-spacing: -1px; }
+        .answer-input {
+            width: 100%; padding: 15px; font-size: 2.5rem; text-align: center;
+            background: var(--bg); border: 2px solid var(--border); color: var(--text);
+            border-radius: 14px; outline: none; margin-bottom: 20px;
+        }
+        .answer-input:focus { border-color: var(--primary); }
+        .answer-input::-webkit-outer-spin-button, .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* FEEDBACK GLASSMORPHISM */
+        .feedback {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--feedback-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column; justify-content: center; align-items: center; z-index: 10;
+        }
+        .feedback-icon { font-size: 8rem; margin-bottom: 5px; animation: pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #fb-text { font-size: 2.2rem; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .correct-ans { 
+            font-size: 1.6rem; color: var(--text); margin-top: 15px; font-weight: 700; 
+            background: rgba(99, 102, 241, 0.15); padding: 10px 20px; border-radius: 10px;
+            border: 1px solid var(--primary);
+        }
+
+        /* MODALS */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: var(--card); padding: 30px; border-radius: 20px;
+            width: 90%; max-width: 480px; max-height: 85vh; overflow-y: auto; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+        .chart-container { width: 140px; height: 140px; margin: 20px auto; border-radius: 50%; box-shadow: inset 0 0 20px rgba(0,0,0,0.2); }
+        .error-list { text-align: left; margin-top: 20px; }
+        .error-item { background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 6px; border-left: 4px solid var(--error); }
+
+        /* BOUTONS */
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; }        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-warning { background: var(--warning); color: white; box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2); }
+        .btn-warning:hover { background: var(--warning-dark); }
+        .btn-stop { background: transparent; color: var(--text-light); margin-top: 10px; text-decoration: underline; font-weight: 500; }
+        .btn-stop:hover { color: var(--error); }
+
+        @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* ==========================================================================
+           MODIFICATIONS POUR ÉCRANS MOBILES (Moins de 600px de large)
+           ========================================================================== */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+                align-items: flex-start; /* Aligne vers le haut pour compenser l'espace du clavier */
+            }
+
+            .container {
+                padding: 15px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+
+            .question {
+                font-size: 2.8rem; /* Réduit drastiquement pour éviter de manger l'espace vertical */
+                margin: 15px 0;
+            }
+
+            .answer-input {
+                padding: 10px;
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+                border-radius: 10px;
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="feedback" class="feedback">
+        <div id="fb-icon" class="feedback-icon"></div>
+        <div id="fb-text"></div>
+        <div id="fb-correct" class="correct-ans"></div>
+    </div>
+
+    <h1>Maths Master</h1>
+
+    <div id="screen-config" class="screen active">
+        <div class="config-layout">
+            
+            <div class="config-left">
+                <div>
+                    <div class="sidebar-title">Mode de jeu</div>
+                    <div class="mode-grid">
+                        <button class="mode-btn selected" onclick="setMode('classic', this)">Classique</button>
+                        <button class="mode-btn" onclick="setMode('hole', this)">À Trou</button>
+                        <button class="mode-btn" onclick="setMode('square', this)">Carrés</button>
+                    </div>
+                </div>
+
+                <div id="setup-classic">
+                    <div class="sidebar-title">Tables à réviser</div>
+                    <div class="btn-actions">
+                        <button type="button" class="btn-sub" onclick="checkAll(true)">Tout cocher</button>
+                        <button type="button" class="btn-sub" onclick="checkAll(false)">Tout décocher</button>
+                    </div>
+                    <div class="tables-grid" id="tables-grid"></div>
+                </div>
+
+                <div id="setup-square" style="display: none;">
+                    <div class="sidebar-title">Options des carrés</div>
+                    <div class="switch-container">
+                        <span>Inversé</span>
+                        <label class="switch">
+                            <input type="checkbox" id="square-inverted">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="startGame()">DÉMARRER LA PARTIE</button>
+            </div>
+
+            <div class="config-right">
+                <div>
+                    <div class="sidebar-title">Style</div>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <span id="theme-icon">🌙</span> <span id="theme-text">Mode Sombre</span>
+                    </button>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div class="sidebar-title" style="margin: 0;">Mes pires erreurs</div>
+                        <button onclick="clearErrorHistory()" style="background: none; border: none; color: var(--text-light); font-size: 0.75rem; cursor: pointer; text-decoration: underline;">Effacer</button>
+                    </div>
+                    <div class="error-blacklist" id="error-blacklist"></div>
+                    
+                    <button id="btn-mistakes-mode" class="btn btn-warning" style="margin-top: 12px; font-size: 0.85rem;" onclick="startMistakesMode()">
+                        🚀 ENTRAÎNER MES ERREURS
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div class="game-container">
+            <div class="game-nav">
+                <span id="game-mode-label">MODE: CLASSIQUE</span>
+                <span id="score-label">Score : 0 / 0</span>
+            </div>
+            <div id="question" class="question">7 x 8</div>
+            
+            <input type="number" pattern="[0-9]*" inputmode="numeric" id="answer-input" class="answer-input" placeholder="?" autocomplete="off">
+            
+            <button class="btn btn-primary" onclick="checkAnswer()">VALIDER</button>
+            <button class="btn btn-stop" onclick="endSession()">Terminer et voir le bilan</button>
+        </div>
+    </div>
+</div>
+
+<div id="custom-alert" class="modal" style="z-index: 110;">
+    <div class="modal-content" style="max-width: 380px; padding: 25px;">
+        <div style="font-size: 3.5rem; margin-bottom: 10px;">🎯</div>
+        <h3 style="color: var(--success); font-size: 1.4rem; margin-bottom: 12px;">R.A.S. sur ce mode !</h3>
+        <p id="custom-alert-text" style="font-size: 0.95rem; color: var(--text-light); margin-bottom: 20px; line-height: 1.5;"></p>
+        <button class="btn btn-primary" onclick="closeCustomAlert()">Parfait !</button>
+    </div>
+</div>
+
+<div id="modal-results" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--primary); font-size: 1.8rem;">Session Terminée !</h2>
+        <div id="pie-chart" class="chart-container"></div>
+        <div id="score-summary" style="font-size: 1.2rem; margin: 15px 0; font-weight: bold;"></div>
+        
+        <div id="errors-container" class="error-list">
+            <p style="font-weight: bold; margin-bottom: 10px; color: var(--text-light);">Détail des erreurs de la partie :</p>
+            <div id="error-items"></div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 25px;" onclick="closeResults()">RECOMMENCER</button>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'classic';
+    let mistakesActiveMode = 'classic'; 
+    let score = 0;
+    let totalQuestions = 0;
+    let currentAnswer = 0;
+    let sessionErrors = [];
+    let isWaiting = false;
+
+    window.onload = function() {
+        initTheme();
+        renderTablesGrid();
+        renderErrorBlacklist();
+        initMobileScroll(); // Initialise l'écouteur pour le défilement automatique mobile
+    };
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('mathTheme') || 'dark';
+        document.documentElement.className = savedTheme;
+        updateThemeButton(savedTheme);
+    }
+
+    function toggleTheme() {
+        const current = document.documentElement.className;
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.className = next;
+        localStorage.setItem('mathTheme', next);
+        updateThemeButton(next);
+    }
+
+    function updateThemeButton(theme) {
+        document.getElementById('theme-icon').innerText = theme === 'dark' ? '☀️' : '🌙';
+        document.getElementById('theme-text').innerText = theme === 'dark' ? 'Mode Clair' : 'Mode Sombre';
+    }
+
+    function renderTablesGrid() {
+        const grid = document.getElementById('tables-grid');
+        grid.innerHTML = '';
+        for (let i = 1; i <= 14; i++) {
+            grid.innerHTML += `
+                <div class="table-item">
+                    <input type="checkbox" id="t${i}" value="${i}" ${i <= 10 ? 'checked' : ''}>
+                    <label for="t${i}">${i}</label>
+                </div>
+            `;
+        }
+    }
+
+    function checkAll(val) {
+        document.querySelectorAll('.table-item input').forEach(i => i.checked = val);
+    }
+
+    function setMode(mode, btn) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        document.getElementById('setup-classic').style.display = (mode === 'square') ? 'none' : 'block';
+        document.getElementById('setup-square').style.display = (mode === 'square') ? 'block' : 'none';
+        renderErrorBlacklist();
+    }
+
+    function startGame() {
+        score = 0;
+        totalQuestions = 0;
+        sessionErrors = [];
+        
+        const selectedTables = Array.from(document.querySelectorAll('.table-item input:checked')).map(i => parseInt(i.value));
+        if (currentMode !== 'square' && selectedTables.length === 0) {
+            alert("Sélectionne au moins une table !");
+            return;
+        }
+
+        document.getElementById('game-mode-label').innerText = `MODE: ${currentMode.toUpperCase()}`;
+        document.getElementById('score-label').innerText = `Score : 0 / 0`;
+
+        document.getElementById('screen-config').classList.remove('active');
+        document.getElementById('screen-game').classList.add('active');
+        nextQuestion();
+    }
+
+    function startMistakesMode() {
+        const history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+        const validKeys = Object.keys(history).filter(q => {
+            return (typeof history[q] === 'object') && history[q].mode === currentMode;
+        });
+
+        if (validKeys.length === 0) {
+            showCustomAlert();
+            return;
+        }
+        
+        mistakesActiveMode = currentMode;
+        currentMode = 'mistakes';
+        score = 0;
+        totalQuestions = 0;
+        sessionErrors = [];
+
+        let readableMode = mistakesActiveMode === 'classic' ? 'CLASSIQUE' : mistakesActiveMode === 'hole' ? 'À TROU' : 'CARRÉS';
+        document.getElementById('game-mode-label').innerText = `RÉVISION: ERREURS (${readableMode})`;
+        document.getElementById('score-label').innerText = `Score : 0 / 0`;
+
+        document.getElementById('screen-config').classList.remove('active');
+        document.getElementById('screen-game').classList.add('active');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        isWaiting = false;
+        const input = document.getElementById('answer-input');
+        input.value = '';
+        input.focus();
+        
+        if (currentMode === 'mistakes') {
+            const history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+            const keys = Object.keys(history).filter(q => history[q].mode === mistakesActiveMode);
+            
+            if (keys.length === 0) {
+                alert("Génial ! Tu as nettoyé toutes les erreurs de cette section !");
+                endSession();
+                return;
+            }
+            const randomQuestion = keys[Math.floor(Math.random() * keys.length)];
+            currentAnswer = history[randomQuestion].ans;
+            document.getElementById('question').innerText = randomQuestion;
+            return;
+        }
+
+        const selectedTables = Array.from(document.querySelectorAll('.table-item input:checked')).map(i => parseInt(i.value));
+        const a = selectedTables[Math.floor(Math.random() * selectedTables.length)];
+        const b = Math.floor(Math.random() * 14) + 1;
+
+        if (currentMode === 'classic') {
+            currentAnswer = a * b;
+            document.getElementById('question').innerText = `${a} × ${b}`;
+        } else if (currentMode === 'hole') {
+            currentAnswer = b;
+            document.getElementById('question').innerText = `${a} × ? = ${a * b}`;
+        } else if (currentMode === 'square') {
+            const n = Math.floor(Math.random() * 14) + 1;
+            const inverted = document.getElementById('square-inverted').checked;
+            if (inverted) {
+                currentAnswer = n * n;
+                document.getElementById('question').innerText = `Carré de ${n}`;
+            } else {
+                currentAnswer = n;
+                document.getElementById('question').innerText = `${n * n} : ?`;
+            }
+        }
+    }
+
+    function checkAnswer() {
+        if (isWaiting) return;
+        const input = document.getElementById('answer-input');
+        const val = parseInt(input.value);
+        if (isNaN(val)) return;
+
+        isWaiting = true;
+        totalQuestions++;
+        const isCorrect = (val === currentAnswer);
+        const qText = document.getElementById('question').innerText;
+
+        const fb = document.getElementById('feedback');
+        const fbIcon = document.getElementById('fb-icon');
+        const fbText = document.getElementById('fb-text');
+        const fbCorrect = document.getElementById('fb-correct');
+
+        if (isCorrect) {
+            score++;
+            
+            fbIcon.innerText = '✔️';
+            fbIcon.style.color = 'var(--success)';
+            fbText.innerText = 'EXCELLENT !';
+            fbText.style.color = 'var(--success)';
+            fbCorrect.innerText = 'Super !';
+            
+            if (currentMode === 'mistakes') {
+                removeOrReduceError(qText);
+            }
+        } else {
+            fbIcon.innerText = '❌';
+            fbIcon.style.color = 'var(--error)';
+            fbText.innerText = 'OUPS...';
+            fbText.style.color = 'var(--error)';
+            fbCorrect.innerText = `La réponse était : ${currentAnswer}`;
+            
+            let modeToSave = currentMode === 'mistakes' ? mistakesActiveMode : currentMode;
+            sessionErrors.push({ q: qText, y: val, c: currentAnswer });
+            saveErrorToBlacklist(qText, currentAnswer, modeToSave);
+        }
+
+        document.getElementById('score-label').innerText = `Score : ${score} / ${totalQuestions}`;
+        fb.style.display = 'flex';
+
+        setTimeout(() => {
+            fb.style.display = 'none';
+            nextQuestion();
+        }, isCorrect ? 800 : 1800);
+    }
+
+    function saveErrorToBlacklist(question, answer, mode) {
+        let history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+        if (!history[question] || typeof history[question] !== 'object') {
+            history[question] = { count: 0, ans: answer, mode: mode };
+        }
+        history[question].count++;
+        history[question].ans = answer;
+        history[question].mode = mode; 
+        localStorage.setItem('mathGlobalErrors', JSON.stringify(history));
+    }
+
+    function removeOrReduceError(question) {
+        let history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+        if (history[question]) {
+            history[question].count--;
+            if (history[question].count <= 0) {
+                delete history[question];
+            }
+            localStorage.setItem('mathGlobalErrors', JSON.stringify(history));
+        }
+    }
+
+    function renderErrorBlacklist() {
+        const container = document.getElementById('error-blacklist');
+        const btnMistakes = document.getElementById('btn-mistakes-mode');
+        const history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+        
+        const entries = Object.entries(history).filter(([q, data]) => {
+            return (typeof data === 'object') && data.mode === currentMode;
+        });
+
+        const sorted = entries.sort((a, b) => b[1].count - a[1].count).slice(0, 5);
+        
+        let modeLabel = currentMode === 'classic' ? 'CLASSIQUE' : currentMode === 'hole' ? 'À TROU' : 'CARRÉS';
+        btnMistakes.innerText = `🚀 TRAVAILLER MES ERREURS (${modeLabel})`;
+
+        if (sorted.length === 0) {
+            container.innerHTML = `<p style="color: var(--text-light); text-align: center; font-size: 0.85rem; padding-top: 30px;">R.A.S. par ici ! ✨<br>Aucune erreur sur ce mode.</p>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        sorted.forEach(([q, data]) => {
+            container.innerHTML += `
+                <div class="blacklist-item">
+                    <span>${q}</span>
+                    <span class="blacklist-count">${data.count} échec${data.count > 1 ? 's' : ''}</span>
+                </div>
+            `;
+        });
+    }
+
+    function showCustomAlert() {
+        const phrases = [
+            "Rien à signaler par ici ! Ta jauge d'erreurs est totalement vide sur ce mode. Tu gères de fou ! 🔥",
+            "Zone blanche ! Aucun échec détecté. Tu as terrassé toutes les difficultés de ce mode ! 🏆",
+            "Zéro faute au compteur ! C'est un sans-faute parfait pour le moment sur ce mode. Continues comme ça ! 😎"
+        ];
+        const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+        document.getElementById('custom-alert-text').innerText = randomPhrase;
+        document.getElementById('custom-alert').style.display = 'flex';
+    }
+
+    function closeCustomAlert() {
+        document.getElementById('custom-alert').style.display = 'none';
+    }
+
+    function clearErrorHistory() {
+        let modeLabel = currentMode === 'classic' ? 'Classique' : currentMode === 'hole' ? 'À Trou' : 'Carrés';
+        if(confirm(`Veux-tu réinitialiser ton historique d'erreurs pour le mode ${modeLabel} uniquement ?`)) {
+            let history = JSON.parse(localStorage.getItem('mathGlobalErrors') || '{}');
+            Object.keys(history).forEach(q => {
+                if (history[q].mode === currentMode) {
+                    delete history[q];
+                }
+            });
+            localStorage.setItem('mathGlobalErrors', JSON.stringify(history));
+            renderErrorBlacklist();
+        }
+    }
+
+    function endSession() {
+        if (totalQuestions === 0) {
+            quitToConfig();
+            return;
+        }
+        const modal = document.getElementById('modal-results');
+        const accuracy = Math.round((score / totalQuestions) * 100);
+        
+        document.getElementById('pie-chart').style.background = `conic-gradient(var(--success) ${accuracy}%, var(--error) 0)`;
+        document.getElementById('score-summary').innerText = `Score : ${score} / ${totalQuestions} (${accuracy}%)`;
+
+        const errItems = document.getElementById('error-items');
+        errItems.innerHTML = '';
+        if (sessionErrors.length === 0) {
+            errItems.innerHTML = '<p style="color:var(--success); text-align:center; font-weight:bold;">Zéro faute ! Tu as géré ! 🏆</p>';
+        } else {
+            sessionErrors.forEach(e => {
+                errItems.innerHTML += `
+                    <div class="error-item">
+                        <b>${e.q}</b><br>
+                        Ta réponse : <span style="color:var(--error)">${e.y}</span> | Requis : <span style="color:var(--success)">${e.c}</span>
+                    </div>`;
+            });
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeResults() {
+        document.getElementById('modal-results').style.display = 'none';
+        quitToConfig();
+    }
+
+    function quitToConfig() {
+        if (currentMode === 'mistakes') {
+            currentMode = mistakesActiveMode;
+        }
+        document.getElementById('screen-game').classList.remove('active');
+        document.getElementById('screen-config').classList.add('active');
+        renderErrorBlacklist();
+    }
+
+    /* ==========================================================================
+       FONCTION DE DÉFILEMENT AUTOMATIQUE POUR LE CLAVIER MOBILE
+       ========================================================================== */
+    function initMobileScroll() {
+        const inputReponse = document.getElementById('answer-input');
+        const zoneCalcul = document.getElementById('question');
+
+        if (inputReponse && zoneCalcul) {
+            inputReponse.addEventListener('focus', () => {
+                // Seulement sur les écrans mobiles (largeur < 600px)
+                if (window.innerWidth <= 600) {
+                    setTimeout(() => {
+                        zoneCalcul.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center' 
+                        });
+                    }, 300); // Temps d'attente pour l'affichage complet du clavier
+                }
+            });
+        }
+    }
+
+    document.getElementById('answer-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAnswer();
+    });
+</script>
+
+</body>
+</html>
