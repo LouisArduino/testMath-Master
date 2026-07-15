@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplications</title>
+    <style>
+        /* ==========================
+           CSS réorganisé et commenté
+           - Ne change rien à la logique HTML/JS
+           - Juste trié par catégories et commenté
+           ========================== */
+
+        /* --- Reset & box model --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- Layout principal --- */
+        /* Corps centré verticalement/horizontalement */
+        body {
+            background-color: rgb(230, 230, 230);
+            margin: 20px 0 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Conteneur principal utilisé pour chaque écran */
+        .casePrincipale {
+            background-color: white;
+            width: 80%;
+            max-width: 400px;
+            padding: 25px;
+            text-align: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 5px 5px 15px rgb(179, 179, 179);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        /* --- Titres & paragraphes --- */
+        h1 {
+            color: #4F46E5;
+            font-size: 50px;
+            font-weight: 900;
+        }
+
+        h2 {
+            color: #4F46E5;
+            font-size: x-large;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #7a7a7a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            width: 100%;
+        }
+
+        p {
+            color: #000000;
+            font-size: xx-large;
+            font-weight: 900;
+        }
+
+        /* --- Score / indicateurs --- */
+        #zoneScore {
+            align-self: flex-end; /* aligne à droite dans le conteneur */
+            font-size: larger;
+            color: gray;
+            margin-bottom: 20px;
+        }
+
+        #zonePourcentage {
+            font-size: xl-large;
+            font-weight: 900;
+            color: #4F46E5;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        #zonefelicitations {
+            color: green;
+            font-size: large;
+        }
+
+        #texteScoreFinal {
+            color: #413ab9;
+            font-size: large;
+        }
+
+        /* --- Champs de saisie --- */
+        #reponseUtilisateur {
+            height: 40px;
+            border: 2px solid gray;
+            border-radius: 10px;
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        #reponseUtilisateur:focus {
+            border: 2px solid #4F46E5;
+            outline: none;
+        }
+
+        /* Container du sélecteur */
+        .selecteur-multiplicateur {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            font-family: sans-serif;
+        }
+
+        .label-multiplicateur {
+            font-size: large;
+            font-weight: bold;
+            color: #4b5563; /* Gris doux */
+        }
+
+        /* 🎯 Le fameux rectangle interactif */
+        .boite-valeur {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 16px;
+            cursor: ns-resize; /* 🖱️ Curseur qui indique qu'on peut glisser vers le haut/bas */
+            user-select: none; /* Évite de sélectionner le texte en scrollant */
+            transition: all 0.2s ease;
+        }
+
+        .boite-valeur:hover {
+            border-color: #4F46E5; /* Changement de couleur au survol */
+            background-color: #f9fafb;
+        }
+
+        /* Le "x" et le nombre à l'intérieur */
+        .symbole-x {
+            color: #9ca3af; /* Gris clair pour le x */
+            font-weight: 900;
+            margin-right: 4px;
+            font-size: large;
+        }
+
+        #valeurMultiplicateur {
+            color: #4F46E5; /* Le violet de ton thème */
+            font-weight: 900;
+            font-size: xl-large;
+        }
+
+        /* --- Boutons --- */
+        /* Bouton validation et boutons principaux partagent le même thème */
+        #boutonVerifier,
+        .btnTable {
+            color: white;
+            background-color: #4F46E5;
+            border: 2px solid #4F46E5;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #boutonVerifier {
+            margin-top: 10px;
+            height: 30px;
+        }
+
+        .btnTable {
+            margin-top: 20px;
+            height: 40px;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        /* Hover commun pour les boutons violets */
+        #boutonVerifier:hover,
+        .btnTable:hover {
+            background-color: #413ab9;
+            border-color: #413ab9;
+        }
+
+        .btnstats {
+            border: none;
+            color: gray;
+            background-color: white;
+        }
+
+        /* --- Zone de choix des tables --- */
+        .zoneChoix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            margin: 15px auto;
+            max-width: 280px;
+            width: 90%;
+        }
+
+        /* --- Tuiles / cases à cocher stylisées --- */
+        /* Base de la tuile décrochée */
+        .tuileTable {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1 / 1;
+            padding: 12px;
+            background-color: #f3f4f6; /* gris clair */
+            color: #1f2937;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: x-large;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* Effet au survol */
+        .tuileTable:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Cache la checkbox native (elle reste fonctionnelle) */
+        .tuileTable input[type="checkbox"] {
+            display: none;
+        }
+
+        /* Quand la checkbox interne est cochée, on change le style de la tuile */
+        .tuileTable:has(input:checked) {
+            background-color: #4F46E5;
+            border-color: #4F46E5;
+            color: white;
+        }
+
+        /* --- Zone graphique (camembert) --- */
+        .zoneGraphique {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        #camembert {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#22c55e 0% 100%);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Liste des erreurs / badges --- */
+        #listeErreurs {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            display: none;
+        }
+
+        #listeErreurs li {
+            background-color: #ffffff;
+            color: #1f2937;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            border-left: 6px solid #ef4444;
+            font-size: medium;
+            font-weight: bold;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            /* fond double pour l'effet de glissement */
+            background-image: linear-gradient(to right, #ef4444 50%, #ffffff 50%);
+            background-size: 200% 100%;
+            background-position: right bottom;
+            transition: all 0.5s ease;
+        }
+
+        /* Effet au survol : on fait glisser la couleur rouge */
+        #listeErreurs li:hover {
+            background-position: left bottom;
+            color: #ffffff;
+        }
+
+        /* Variante de félicitations (vert) */
+        #listeErreurs li.felicitations {
+            border-left: 6px solid #22c55e;
+            background-image: linear-gradient(to right, #22c55e 50%, #ffffff 50%);
+        }
+
+        #listeErreurs li.felicitations:hover {
+            color: #ffffff;
+        }
+
+        /* --- Utilitaires de couleurs pour le contenu des badges --- */
+        .texteVert {
+            color: #1f9e4e;
+            font-weight: 900;
+        }
+
+        #listeErreurs li:hover .texteVert {
+            color: #2bcf67;
+        }
+
+        .texteRouge {
+            color: #ff0800;
+            font-weight: 900;
+        }
+
+        #listeErreurs li:hover .texteRouge {
+            color: #000000;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="ecranAccueil" class="casePrincipale">
+    <h2>Choisis ta table :</h2>
+    <div class="selecteur-multiplicateur">
+    <span class="label-multiplicateur">Multiplier jusqu'à :</span>
+    <div class="boite-valeur" id="boiteValeur">
+        <span class="symbole-x">x</span>
+        <span id="valeurMultiplicateur">10</span>
+    </div>
+</div>
+    <div class="zoneChoix">
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="1">1
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="2">2
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="3">3
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="4">4
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="5">5
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="6">6
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="7">7
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="8">8
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="9">9
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="10">10
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="11">11
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="12">12
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="13">13
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="14">14
+        </label>
+        <!--On utilise un label pour que ça fasse le tour, le css retire la coche et change la couleur avec le hover et quand on clique dessus.-->
+    </div>
+
+    <button id="boutonCommencer" class="btnTable">demarrer le jeu</button>
+</div>
+
+<div id="ecranJeu" class="casePrincipale" style="display: none;">
+    <p id="zoneScore"></p>
+    <p id="calcul"></p>
+    <input id="reponseUtilisateur" placeholder="?">
+    <button id="boutonVerifier">Valider</button>
+    <p id="message"></p>
+    <button id="boutonFinir" class="btnstats"><u>~~Voir les stats~~</u></button>
+</div>
+<div id="ecranStats" class="casePrincipale" style="display: none;">
+    <h2>Résultats de la partie</h2>
+    
+    <div class="zoneGraphique">
+        <div id="camembert"></div>
+    </div>
+    <p id="zonePourcentage">0% de réussite</p>
+    
+    <p id="texteScoreFinal">Score final : 0 / 0</p>
+    
+    <h3>Détail des erreurs de la partie :</h3>
+    <ul id="listeErreurs"></ul>
+    <p id="zonefelicitations"></p>
+
+    <button id="returnHome" class="btnTable">Revenir au home</button>
+</div>
+
+    <script>
+        const bouton = document.getElementById('boutonVerifier');
+        const zoneCalcul = document.getElementById('calcul');
+        const champReponse = document.getElementById('reponseUtilisateur');
+        const zoneMessage = document.getElementById('message');
+        const zoneScore = document.getElementById('zoneScore');
+
+        // On sélectionne les deux écrans et le bouton Commencer
+        const ecranAccueil = document.getElementById('ecranAccueil');
+        const ecranJeu = document.getElementById('ecranJeu');
+        const boutonCommencer = document.getElementById('boutonCommencer');// 1. Sélection des nouveaux éléments HTML
+        const ecranStats = document.getElementById('ecranStats');
+        const boutonFinir = document.getElementById('boutonFinir');
+        const texteScoreFinal = document.getElementById('texteScoreFinal');
+        const listeErreurs = document.getElementById('listeErreurs');
+        const camembert = document.getElementById('camembert');
+        const zonePourcentage = document.getElementById('zonePourcentage');
+        const boiteValeur = document.getElementById('boiteValeur');
+        const valeurMultiplicateur = document.getElementById('valeurMultiplicateur');
+
+        const LIMITE_MIN_VALEUR = 1;
+        const LIMITE_MAX_VALEUR = 14;
+
+
+
+        // Cette variable vide va stocker la liste des tables choisies (ex: [2, 5])
+        let tablesChoisies = [];
+
+        let nombre1 = 0;
+        let nombre2 = 0;
+        let bonneReponse = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        // 2. La boîte vide pour stocker les erreurs (ex: ["2 x 5 = 10 (tu as mis 12)", ...])
+        let historiqueErreurs = [];
+
+        //Pour la molette du multiplicateur
+        let limiteMax = 10;
+
+        zoneScore.textContent = "Score : 0 / 0";
+
+        /****************************************************************************************************************************/
+        /******************************************-------------FONCTIONS-----------------*******************************************/
+        /****************************************************************************************************************************/
+
+        function demarrerJeu() {
+            const toutesLesCases = document.querySelectorAll('.choixTable');
+
+            tablesChoisies = [];
+
+            toutesLesCases.forEach(function(caseACocher) {
+                if(caseACocher.checked){
+                    tablesChoisies.push(parseInt(caseACocher.value));
+                }
+            });
+            if (tablesChoisies.length === 0) {
+                alert("Choisis au moins une table avant de commencer !");
+                return;
+            }
+            //On cache l'écran d'acceuil et on affiche l'écran de jeu
+            ecranAccueil.style.display = 'none';
+            ecranJeu.style.display = 'flex';
+
+            generateCalcul();
+        }
+
+        function retournerHome() {
+            ecranAccueil.style.display = 'flex';
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'none';
+        }
+
+        boutonCommencer.addEventListener('click', demarrerJeu);
+
+        function generateCalcul() {
+            //Générer 2 nombres aléatoires entre 1 et 10
+            const indexAleatoire = Math.floor(Math.random() * tablesChoisies.length);
+            nombre1 = tablesChoisies[indexAleatoire];
+            nombre2 = Math.floor(Math.random() * limiteMax) + 1;
+
+            //Calculer la bonne réponse
+            bonneReponse = nombre1 * nombre2;
+
+            zoneCalcul.textContent = nombre1 + " x " + nombre2;
+
+            champReponse.value = "";
+            zoneMessage.textContent = "";
+        }
+
+        function verifierReponse() {
+            const reponseDonnee = parseInt(champReponse.value);
+            
+            totalQuestions = totalQuestions + 1;
+
+             if(reponseDonnee === bonneReponse){
+                zoneMessage.textContent = "Bonne reponse";
+                zoneMessage.style.color = "Green";
+                score = score + 1;
+             }
+             else {
+                zoneMessage.textContent = "Mauvaise reponse";
+                zoneMessage.style.color = "red";
+
+                historiqueErreurs.push(nombre1 + " x " + nombre2 + " = <span class='texteVert'>" + bonneReponse + "</span> (tu as écrit <span class='texteRouge'>" + reponseDonnee + "</span>)");
+             }
+
+             zoneScore.textContent = "Score : " + score + "/" + totalQuestions;
+             setTimeout(generateCalcul, 1000);
+
+        }
+
+
+        
+        function afficherStats() {
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'flex';
+
+            texteScoreFinal.textContent = "Score final : " + score + " / " + totalQuestions;
+
+            listeErreurs.innerHTML = "";
+            zonefelicitations.textContent = "";
+
+            if (historiqueErreurs.length === 0) {
+                listeErreurs.style.display = 'none'; 
+                zonefelicitations.textContent = "Félicitations, tu n'as pas fait d'erreurs !";
+            } else {
+                listeErreurs.style.display = 'block'; 
+        
+                historiqueErreurs.forEach(function(erreur) {
+                let elementLi = document.createElement('Li');
+                elementLi.innerHTML = erreur;
+                listeErreurs.appendChild(elementLi);
+                });
+            }
+
+            bouton.addEventListener('click', verifierReponse);
+
+            // 🎯 Maintenant, ce bloc s'exécutera QUEL QUE SOIT le score (avec ou sans erreur)
+            let pourcentageJuste = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+    
+            zonePourcentage.textContent = pourcentageJuste.toFixed(1) + "% de réussite";
+    
+            camembert.style.background = "conic-gradient(#22c55e 0% " + pourcentageJuste + "%, #ef4444 " + pourcentageJuste + "% 100%)";
+        }
+
+        boutonFinir.addEventListener('click', afficherStats);
+        returnHome.addEventListener('click', retournerHome);
+        
+
+
+        // ⌨️ Écouteur pour la touche Entrée sur le champ de saisie
+        champReponse.addEventListener('keydown', function(evenement) {
+        if (evenement.key === "Enter") {
+            if (champReponse.value.trim() !== "") {
+            verifierReponse();
+        }}}
+    );
+
+    boiteValeur.addEventListener('wheel', function(evenement) {
+        //Empèche le défilement de la page
+        evenement.preventDefault();
+
+        if(evenement.deltaY < 0) {
+            if(limiteMax < LIMITE_MAX_VALEUR){
+                limiteMax++;
+            }
+        } else{
+                if(limiteMax > LIMITE_MIN_VALEUR) {
+                    limiteMax--;
+                }
+            }
+        //Mettre a jour l'affichage de la boite
+        valeurMultiplicateur.textContent = limiteMax;
+        });
+
+    boiteValeur.addEventListener('touchstart', function(e) {
+        e.preventDefault(); // Empêche le défilement de la page pendant le réglage
+        enTrainDeGlisser = true;
+        yDepart = e.touches[0].clientY;
+        valeurDepart = limiteMax;
+        boiteValeur.style.borderColor = '#4F46E5';
+    });0
+
+    function ajusterValeur(nouvelleValeur) {
+        limiteMax = Math.max(1, Math.min(14, nouvelleValeur));
+
+        valeurMultiplicateur.textContent = limiteMax;
+    }
+
+    window.addEventListener('touchmove', function(e) {
+        if (!enTrainDeGlisser) return;
+        e.preventDefault();
+    
+        const yActuel = e.touches[0].clientY;
+        const differenceY = yDepart - yActuel; // Positif si glissement vers le haut
+    
+        // Sensibilité : 1 unité tous les 15 pixels de glissement
+        const changement = Math.round(differenceY / 15); 
+        ajusterValeur(valeurDepart + changement);
+    });
+
+    window.addEventListener('touchend', function() {
+        enTrainDeGlisser = false;
+        boiteValeur.style.borderColor = '';
+    });
+        
+    </script>
+</body>
+</html>
