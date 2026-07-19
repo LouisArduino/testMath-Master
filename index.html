@@ -1,0 +1,920 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Multiplications">
+
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+
+    <link rel="manifest" href="manifest.json">
+
+    <title>Multiplications</title>
+    <style>
+        
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+        .archivo-black-regular {
+            font-family: "Archivo Black", sans-serif;
+            font-weight: 100;
+            font-style: normal;
+        }
+
+        /* ==========================
+           CSS réorganisé et commenté
+           - Ne change rien à la logique HTML/JS
+           - Juste trié par catégories et commenté
+           ========================== */
+
+        /* --- Reset & box model --- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* --- Layout principal --- */
+        /* Corps centré verticalement/horizontalement */
+        body {
+            background-color: rgb(230, 230, 230);
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            flex-direction: column;
+
+            &::-webkit-scrollbar {
+            display: none;
+            }
+        }
+
+        /* Conteneur principal utilisé pour chaque écran */
+        .casePrincipale {
+            background-color: white;
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            text-align: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 5px 5px 15px rgb(179, 179, 179);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            font-family: "Archivo Black", sans-serif;
+        }
+
+        /* --- Titres & paragraphes --- */
+        h1 {
+            color: #4F46E5;
+            font-size: 50px;
+            font-weight: 900;
+        }
+
+        h2 {
+            color: #4F46E5;
+            font-size: x-large;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #7a7a7a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            width: 100%;
+            font-weight: lighter;
+            font-size: medium;
+        }
+
+        p {
+            color: #000000;
+            font-size: xx-large;
+        }
+
+        u{
+            font-family: "Archivo Black", sans-serif;
+        }
+
+        /* --- Score / indicateurs --- */
+        #zoneScore {
+            align-self: flex-end; /* aligne à droite dans le conteneur */
+            font-size: larger;
+            color: gray;
+            margin-bottom: 20px;
+        }
+
+        #zonePourcentage {
+            font-size: xl-large;
+            font-weight: 900;
+            color: #4F46E5;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        #zonefelicitations {
+            color: àrgb(1, 177, 1);
+            font-size: medium;
+        }
+
+        #texteScoreFinal {
+            color: #413ab9;
+            font-size: large;
+        }
+
+        #message {
+            min-height: 32px;
+            margin-top: 10px;
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        /* --- Champs de saisie --- */
+        #reponseUtilisateur {
+            height: 40px;
+            border: 2px solid gray;
+            border-radius: 10px;
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+        }
+
+        #reponseUtilisateur:focus {
+            border: 2px solid #4F46E5;
+            outline: none;
+        }
+
+        /* Container du sélecteur */
+        .selecteur-multiplicateur {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+            font-family: "Archivo Black", sans-serif;
+            margin-top: 0;
+        }
+
+        .label-multiplicateur {
+            white-space: nowrap;
+            font-size: clamp(1rem, 5vw, 1.2rem);
+            font-weight: bold;
+            color: #4b5563; /* Gris doux */
+        }
+
+        /* 🎯 Le fameux rectangle interactif */
+        .boite-valeur {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 6px 16px;
+            cursor: ns-resize; /* 🖱️ Curseur qui indique qu'on peut glisser vers le haut/bas */
+            user-select: none; /* Évite de sélectionner le texte en scrollant */
+            transition: all 0.2s ease;
+        }
+
+        .boite-valeur:hover {
+            border-color: #4F46E5; /* Changement de couleur au survol */
+            background-color: #f9fafb;
+        }
+
+        /* Le "x" et le nombre à l'intérieur */
+        .symbole-x {
+            color: #9ca3af; /* Gris clair pour le x */
+            font-weight: 900;
+            margin-right: 4px;
+            font-size: large;
+        }
+
+        #valeurMultiplicateur {
+            color: #4F46E5; /* Le violet de ton thème */
+            font-weight: 900;
+            font-size: xl-large;
+        }
+
+        /* --- Boutons --- */
+        /* Bouton validation et boutons principaux partagent le même thème */
+        #boutonVerifier,
+        .btnTable {
+            color: white;
+            background-color: #4F46E5;
+            border: 2px solid #4F46E5;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: "Archivo Black", sans-serif;
+            width: 100%;
+        }
+
+        #boutonVerifier {
+            margin-top: 10px;
+            height: 30px;
+        }
+
+        .btnTable {
+            margin-top: 20px;
+            height: 40px;
+            font-size: large;
+            font-weight: 900;
+            width: 100%;
+        }
+
+        /* Hover commun pour les boutons violets */
+        #boutonVerifier:hover,
+        .btnTable:hover {
+            background-color: #413ab9;
+            border-color: #413ab9;
+        }
+
+        .btnstats {
+            border: none;
+            color: gray;
+            background-color: white;
+        }
+
+        /* --- Zone de choix des tables --- */
+        .zoneChoix {
+            display: grid;
+            padding: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            margin: 15px auto;
+            max-width: 95%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* --- Tuiles / cases à cocher stylisées --- */
+        /* Base de la tuile décrochée */
+        .tuileTable {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 2 / 1;
+            padding: 12px;
+            background-color: #f3f4f6; /* gris clair */
+            color: #1f2937;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            max-height: 35px;
+            font-size: medium;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* Effet au survol */
+        .tuileTable:hover {
+            background-color: #e5e7eb;
+        }
+
+        /* Cache la checkbox native (elle reste fonctionnelle) */
+        .tuileTable input[type="checkbox"] {
+            display: none;
+        }
+
+        /* Quand la checkbox interne est cochée, on change le style de la tuile */
+        .tuileTable:has(input:checked) {
+            background-color: #4F46E5;
+            border-color: #4F46E5;
+            color: white;
+        }
+
+        /* --- Style des boutons Tout cocher / Décocher --- */
+        .zone-action-selection {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-selection {
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-selection:hover {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+
+                /* --- Zone graphique (camembert) --- */
+        .zoneGraphique {
+            display: flex;
+            justify-content: center;
+           align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        #camembert {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#22c55e 0% 100%);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Liste des erreurs / badges --- */
+        #listeErreurs {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            display: none;
+        }
+
+        #listeErreurs li {
+            background-color: #ffffff;
+            color: #1f2937;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            border-left: 6px solid #ef4444;
+            font-size: medium;
+            font-weight: bold;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            /* fond double pour l'effet de glissement */
+            background-image: linear-gradient(to right, #ef4444 50%, #ffffff 50%);
+            background-size: 200% 100%;
+            background-position: right bottom;
+            transition: all 0.5s ease;
+        }
+
+        /* Effet au survol : on fait glisser la couleur rouge */
+        #listeErreurs li:hover {
+            background-position: left bottom;
+            color: #ffffff;
+        }
+
+        /* Variante de félicitations (vert) */
+        #listeErreurs li.felicitations {
+            border-left: 6px solid #22c55e;
+            background-image: linear-gradient(to right, #22c55e 50%, #ffffff 50%);
+        }
+
+        #listeErreurs li.felicitations:hover {
+            color: #ffffff;
+        }
+
+        /* --- Utilitaires de couleurs pour le contenu des badges --- */
+        .texteVert {
+            color: #1f9e4e;
+            font-weight: 900;
+        }
+
+        #listeErreurs li:hover .texteVert {
+            color: #2bcf67;
+        }
+
+        .texteRouge {
+            color: #ff0800;
+            font-weight: 900;
+        }
+
+        #listeErreurs li:hover .texteRouge {
+            color: #000000;
+        }
+
+        /* --- Zones des Erreurs au Home ---*/
+        #zoneErreursHome {
+            background-color: #F1F5F9;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        #zoneErreursHome ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        #zoneErreursHome li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #zoneErreursHome li:last-child {
+            border-bottom: none;
+        }
+
+        .operation {
+            text-align: left;
+            font-weight: 500;
+            flex: 1;
+            color: #7a7a7a;
+        }
+
+        .nombreErreurs {
+            text-align: right;
+            color: #ef4444;
+            background-color: #fee2e2;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: inline-block;
+            white-space: nowrap;
+            font-weight: 900;
+        }
+
+        #infoMulti {
+            text-align: center;
+            margin-bottom: 0;
+            font-size: small;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="ecranAccueil" class="casePrincipale">
+    <h2>Choisis ta table :</h2>
+    <h3 id="infoMulti"></h3>
+    <div class="selecteur-multiplicateur">
+    <span class="label-multiplicateur">Multiplicateur :</span>
+    <div class="boite-valeur" id="boiteValeur">
+        <span class="symbole-x">x</span>
+        <span id="valeurMultiplicateur">10</span>
+    </div>
+</div>
+<div class="zone-action-selection">
+    <button type="button" id="btnToutCocher" class="btn-selection">Tout cocher</button>
+    <button type="button" id="btnToutDecocher" class="btn-selection">Tout décocher</button>
+</div>
+    <div class="zoneChoix">
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="1">1
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="2">2
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="3">3
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="4">4
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="5">5
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="6">6
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="7">7
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="8">8
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="9">9
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="10">10
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="11">11
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="12">12
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="13">13
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="14">14
+        </label>
+        <!--On utilise un label pour que ça fasse le tour, le css retire la coche et change la couleur avec le hover et quand on clique dessus.-->
+    </div>
+
+    <button id="boutonCommencer" class="btnTable">demarrer le jeu</button>
+    <h3 id="piresErreurs">MES PIRES ERREURS :</h3>
+    <div id="zoneErreursHome">
+        <div id="listeerreurTotal"></div>
+    </div> 
+</div>
+
+<div id="ecranJeu" class="casePrincipale" style="display: none;">
+    <p id="zoneScore"></p>
+    <p id="calcul"></p>
+    <input id="reponseUtilisateur" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?">
+    <button id="boutonVerifier">Valider</button>
+    <p id="message"></p>
+    <button id="boutonFinir" class="btnstats"><u>--Voir les stats--</u></button>
+</div>
+<div id="ecranStats" class="casePrincipale" style="display: none;">
+    <h2>Résultats de la partie</h2>
+    
+    <div class="zoneGraphique">
+        <div id="camembert"></div>
+    </div>
+    <p id="zonePourcentage">0% de réussite</p>
+    
+    <p id="texteScoreFinal">Score final : 0 / 0</p>
+    
+    <h3>Détail des erreurs de la partie :</h3>
+    <ul id="listeErreurs"></ul>
+    <p id="zonefelicitations"></p>
+
+    <button id="returnHome" class="btnTable">Revenir au home</button>
+</div>
+
+    <script>
+        const bouton = document.getElementById('boutonVerifier');
+        const zoneCalcul = document.getElementById('calcul');
+        const champReponse = document.getElementById('reponseUtilisateur');
+        const zoneMessage = document.getElementById('message');
+        const zoneScore = document.getElementById('zoneScore');
+
+        // On sélectionne les deux écrans et le bouton Commencer
+        const ecranAccueil = document.getElementById('ecranAccueil');
+        const ecranJeu = document.getElementById('ecranJeu');
+        const boutonCommencer = document.getElementById('boutonCommencer');// 1. Sélection des nouveaux éléments HTML
+        const ecranStats = document.getElementById('ecranStats');
+        const boutonFinir = document.getElementById('boutonFinir');
+        const texteScoreFinal = document.getElementById('texteScoreFinal');
+        const listeErreurs = document.getElementById('listeErreurs');
+        const camembert = document.getElementById('camembert');
+        const zonePourcentage = document.getElementById('zonePourcentage');
+        const zonefelicitations = document.getElementById('zonefelicitations');
+        const boiteValeur = document.getElementById('boiteValeur');
+        const valeurMultiplicateur = document.getElementById('valeurMultiplicateur');
+        const zoneErreursHome = document.getElementById('zoneErreursHome');
+        const listeerreurTotal = document.getElementById('listeerreurTotal');
+        const returnHome = document.getElementById('returnHome');
+        const btnToutCocher = document.getElementById('btnToutCocher');
+        const btnToutDecocher = document.getElementById('btnToutDecocher');
+        const toutesLesCasesHTML = document.querySelectorAll('.choixTable');
+        const valeurParDefaut = 10;
+        const isMobile = window.matchMedia("(pointer: coarse)").matches;
+        const infoMulti = document.getElementById('infoMulti');
+
+        const LIMITE_MIN_VALEUR = 1;
+        const LIMITE_MAX_VALEUR = 14;
+
+
+
+        // Cette variable vide va stocker la liste des tables choisies (ex: [2, 5])
+        let tablesChoisies = [];
+
+        let nombre1 = 0;
+        let nombre2 = 0;
+        let bonneReponse = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        // 2. La boîte vide pour stocker les erreurs (ex: ["2 x 5 = 10 (tu as mis 12)", ...])
+        let historiqueErreurs = [];
+        let erreurTotal = {};
+
+        //Pour la molette du multiplicateur
+        let limiteMax = 10;
+
+        let multiCompris = false;
+
+        if(isMobile) {
+            infoMulti.innerHTML = "Glisser pour modifier ⬇️";
+        }
+
+        
+        listeerreurTotal.textContent = "R. A. S. sur ce mode, bravo !";
+            
+
+        zoneScore.textContent = "Score : 0 / 0";
+
+        // 1. Pré-cocher les tables à l'ouverture du jeu (Ex: Tables de 1 à 10)
+        // Tu peux modifier la liste [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] si tu veux en pré-cocher d'autres !
+        const tablesParDefaut = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+        toutesLesCasesHTML.forEach(function(caseACocher) {
+            const valeurTable = parseInt(caseACocher.value);
+            if (tablesParDefaut.includes(valeurTable)) {
+                caseACocher.checked = true;
+            }
+        });
+
+        // 2. Fonction pour TOUT cocher
+        btnToutCocher.addEventListener('click', function() {
+            toutesLesCasesHTML.forEach(function(caseACocher) {
+            caseACocher.checked = true;
+            });
+        });
+
+        // 3. Fonction pour TOUT décocher
+        btnToutDecocher.addEventListener('click', function() {
+            toutesLesCasesHTML.forEach(function(caseACocher) {
+            caseACocher.checked = false;
+            });
+        });
+
+        /****************************************************************************************************************************/
+        /******************************************-------------FONCTIONS-----------------*******************************************/
+        /****************************************************************************************************************************/
+
+        function demarrerJeu() {
+            const toutesLesCases = document.querySelectorAll('.choixTable');
+
+            tablesChoisies = [];
+
+            toutesLesCases.forEach(function(caseACocher) {
+                if(caseACocher.checked){
+                    tablesChoisies.push(parseInt(caseACocher.value));
+                }
+            });
+            if (tablesChoisies.length === 0) {
+                alert("Choisis au moins une table avant de commencer !");
+                return;
+            }
+
+            // Réinitialiser les statistiques et les erreurs à chaque nouvelle partie.
+            score = 0;
+            totalQuestions = 0;
+            historiqueErreurs = [];
+            listeErreurs.innerHTML = "";
+            zoneScore.textContent = "Score : 0 / 0";
+            
+            //On cache l'écran d'acceuil et on affiche l'écran de jeu
+            ecranAccueil.style.display = 'none';
+            ecranJeu.style.display = 'flex';
+
+            generateCalcul();
+        }
+
+        function retournerHome() {
+            ecranAccueil.style.display = 'flex';
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'none';
+
+            // On vide la zone d'accueil avant de la remplir avec les erreurs.
+            listeerreurTotal.innerHTML = "";
+            listeErreurs.innerHTML = "";
+
+            // On récupère les différentes opérations ratées stockées dans l'objet erreurTotal.
+            const operations = Object.keys(erreurTotal);
+
+            // Si aucune erreur n'a été enregistrée, on affiche un message simple.
+            if (operations.length === 0) {
+                listeerreurTotal.textContent = "R. A. S. sur ce mode, bravo !";
+            } else {
+                // On crée une liste HTML pour afficher chaque erreur proprement.
+                const ul = document.createElement('ul');
+                ul.style.padding = '0';
+                ul.style.margin = '0';
+                ul.style.listStyle = 'none';
+
+                // Pour chaque opération, on crée une ligne dans la liste.
+                operations.forEach(function(operation) {
+                    const info = erreurTotal[operation];
+                    const li = document.createElement('li');
+                    const nombreEchecs = info.fois;
+
+                    const spanOp = document.createElement('span');
+                    spanOp.className = 'operation';
+                    spanOp.textContent = operation;
+
+                    const spanErreur = document.createElement('span');
+                    spanErreur.className = 'nombreErreurs';
+                    spanErreur.textContent = nombreEchecs + ' échec' + (nombreEchecs > 1 ? 's' : '');
+
+                    li.appendChild(spanOp);
+                    li.appendChild(spanErreur);
+                    ul.appendChild(li);
+                });
+
+                listeerreurTotal.appendChild(ul);
+            }
+        }
+
+        boutonCommencer.addEventListener('click', demarrerJeu);
+        bouton.addEventListener('click', verifierReponse);
+        champReponse.focus();
+
+        function generateCalcul() {
+            //Générer 2 nombres aléatoires entre 1 et 10
+            const indexAleatoire = Math.floor(Math.random() * tablesChoisies.length);
+            nombre1 = tablesChoisies[indexAleatoire];
+            nombre2 = Math.floor(Math.random() * limiteMax) + 1;
+
+            //Calculer la bonne réponse
+            bonneReponse = nombre1 * nombre2;
+
+            zoneCalcul.textContent = nombre1 + " x " + nombre2;
+
+            champReponse.value = "";
+            zoneMessage.textContent = "";
+
+            champReponse.focus();
+        }
+
+        // Cette fonction sert à enregistrer une erreur dans un objet appelé erreurTotal.
+        // Elle reçoit la réponse donnée par l'utilisateur en paramètre.
+        function enregistrerErreurDansObjet() {
+            // On crée une clé sous forme de texte : par exemple "3 x 4"
+            const operation = nombre1 + " x " + nombre2;
+
+            // Si cette opération n'existe pas encore dans l'objet, on la crée.
+            // On met ensuite :
+            // - fois : combien de fois cette erreur est arrivée
+            // - bonneReponse : la réponse correcte
+            // - derniereReponse : la dernière mauvaise réponse donnée
+            if (!erreurTotal[operation]) {
+                erreurTotal[operation] = {
+                    fois: 1
+                };
+            } else {
+                // Si l'opération existe déjà, on augmente le compteur
+                // et on remplace la dernière mauvaise réponse par la nouvelle.
+                erreurTotal[operation].fois += 1;
+            }
+        }
+
+        // À faire ensuite dans la fonction verifierReponse() :
+        // 1. récupérer la réponse de l'utilisateur
+        // 2. vérifier si elle est bonne ou mauvaise
+        // 3. si elle est mauvaise, appeler enregistrerErreurDansObjet(reponseDonnee)
+        // 4. afficher le message d'erreur
+        function verifierReponse() {
+            // Si le champ est vide, on ne fait rien et on quitte la fonction.
+            if (champReponse.value.trim() === "") {
+                return;
+            }
+            //Retire les espace en ajoutant une etape avant d'enregistere le champ de réonse dans reponseDonnee en remplaçant les espace par rien.
+            let textNettoye = champReponse.value.replace(/\s+/g, '');
+            let reponseDonnee = parseInt(textNettoye);
+
+            if (Number.isNaN(reponseDonnee)) {
+                alert("Ta réponse n'est pas valide");
+                return;
+            } else {
+            reponseDonnee = reponseDonnee
+
+            totalQuestions = totalQuestions + 1;
+
+            if (reponseDonnee === bonneReponse) {
+                zoneMessage.textContent = "Bonne reponse";
+                zoneMessage.style.color = "Green";
+                score = score + 1;
+                zoneScore.textContent = "Score : " + score + "/" + totalQuestions;
+                champReponse.focus();
+                setTimeout(generateCalcul, 250);
+            } else {
+                zoneMessage.textContent = "Mauvaise reponse";
+                zoneMessage.style.color = "red";
+
+                historiqueErreurs.push(nombre1 + " x " + nombre2 + " = <span class='texteVert'>" + bonneReponse + "</span> (tu as écrit <span class='texteRouge'>" + reponseDonnee + "</span>)");
+                enregistrerErreurDansObjet(reponseDonnee);
+                zoneScore.textContent = "Score : " + score + "/" + totalQuestions;
+                champReponse.focus();
+                setTimeout(generateCalcul, 1000);
+            }
+        }
+        }
+        
+
+
+        
+        // Explication simple de la fonction enregistrerErreurDansObjet :
+        // 1. On crée une clé avec la multiplication actuelle, par exemple "2 x 5".
+        // 2. Si cette multiplication n'a jamais été ratée, on crée un objet pour elle.
+        // 3. Si elle a déjà une erreur enregistrée, on ajoute 1 au compteur.
+        // 4. On garde aussi la bonne réponse et la dernière mauvaise réponse.
+        //
+        // Exemple de résultat dans l'objet :
+        // erreurTotal = {
+        //   "2 x 5": { fois: 2, bonneReponse: 10, derniereReponse: 9 }
+        // };
+        //
+        // À retenir :
+        // - un objet permet de regrouper plusieurs informations sous un nom
+        // - une clé est l'identifiant de chaque donnée (ici la multiplication)
+        // - une valeur est un objet contenant plusieurs infos
+
+        function afficherStats() {
+            if(totalQuestions === 0){
+                ecranJeu.style.display = 'none';
+                ecranAccueil.style.display = 'flex';
+            } else {
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'flex';
+
+            texteScoreFinal.textContent = "Score final : " + score + " / " + totalQuestions;
+
+            listeErreurs.innerHTML = "";
+            zonefelicitations.textContent = "";
+
+            if (historiqueErreurs.length === 0) {
+                listeErreurs.style.display = 'none'; 
+                zonefelicitations.textContent = "Félicitations, tu n'as pas fait d'erreurs !";
+            } else {
+                listeErreurs.style.display = 'block'; 
+        
+                historiqueErreurs.forEach(function(erreur) {
+                let elementLi = document.createElement('Li');
+                elementLi.innerHTML = erreur;
+                listeErreurs.appendChild(elementLi);
+                });
+            }
+
+            // 🎯 Maintenant, ce bloc s'exécutera QUEL QUE SOIT le score (avec ou sans erreur)
+            let pourcentageJuste = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+    
+            zonePourcentage.textContent = pourcentageJuste.toFixed(1) + "% de réussite";
+    
+            camembert.style.background = "conic-gradient(#22c55e 0% " + pourcentageJuste + "%, #ef4444 " + pourcentageJuste + "% 100%)";
+        }
+        }
+
+        boutonFinir.addEventListener('click', afficherStats);
+        returnHome.addEventListener('click', retournerHome);
+        
+
+
+        // ⌨️ Écouteur pour la touche Entrée sur le champ de saisie
+        champReponse.addEventListener('keydown', function(evenement) {
+        if (evenement.key === "Enter") {
+            if (champReponse.value.trim() !== "") {
+            verifierReponse();
+        }}}
+    );
+
+    boiteValeur.addEventListener('wheel', function(evenement) {
+        //Empèche le défilement de la page
+        evenement.preventDefault();
+
+        if(evenement.deltaY < 0) {
+            if(limiteMax < LIMITE_MAX_VALEUR){
+                limiteMax++;
+            }
+        } else{
+                if(limiteMax > LIMITE_MIN_VALEUR) {
+                    limiteMax--;
+                }
+            }
+        //Mettre a jour l'affichage de la boite
+        valeurMultiplicateur.textContent = limiteMax;
+        });
+
+    boiteValeur.addEventListener('touchstart', function(e) {
+        e.preventDefault(); // Empêche le défilement de la page pendant le réglage
+        enTrainDeGlisser = true;
+        yDepart = e.touches[0].clientY;
+        valeurDepart = limiteMax;
+        boiteValeur.style.borderColor = '#4F46E5';
+    });
+
+    function ajusterValeur(nouvelleValeur) {
+        limiteMax = Math.max(1, Math.min(14, nouvelleValeur));
+
+        valeurMultiplicateur.textContent = limiteMax;
+
+        if(limiteMax !== valeurMultiplicateur && !multiCompris){
+            multiCompris = true;
+            if(isMobile){
+                infoMulti.textContent = "";
+            }
+        }
+    }
+
+    window.addEventListener('touchmove', function(e) {
+        if (!enTrainDeGlisser) return;
+        e.preventDefault();
+    
+        const yActuel = e.touches[0].clientY;
+        const differenceY = yDepart - yActuel; // Positif si glissement vers le haut
+    
+        // Sensibilité : 1 unité tous les 15 pixels de glissement
+        const changement = Math.round(differenceY / 15); 
+        ajusterValeur(valeurDepart + changement);
+    });
+
+    window.addEventListener('touchend', function() {
+        enTrainDeGlisser = false;
+        boiteValeur.style.borderColor = '';
+    });
+
+        
+    </script>
+</body>
+</html>
