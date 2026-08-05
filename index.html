@@ -1,0 +1,1845 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Multiplications">
+
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <link rel="icon" type="image/png" sizes="512x512" href="icon.png">
+
+    <link rel="manifest" href="manifest.json">
+
+    <title>Multiplications</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+        /* ==========================================================================
+           1. VARIABLES CSS (THÈMES THÈME CLAIR ET SOMBRE)
+           ========================================================================== */
+        
+        /* ☀️ Thème Clair (par défaut) */
+        :root {
+            --bg-body: rgb(230, 230, 230);
+            --bg-caseP: #ffffff;
+            --texte-principal: #000000;
+            --texte-secondaire: #4b5563;
+            --texte-muter: #7a7a7a;
+            --couleur-violet: #4F46E5;
+            --couleur-violet-hover: #413ab9;
+            --couleur-violet-clair: #e0e7ff;
+            --bg-element: #f3f4f6;
+            --bg-element-hover: #e5e7eb;
+            --border-couleur: #e5e7eb;
+            --ombre-carte: rgba(179, 179, 179, 0.7);
+            --bg-erreurs-home: #F1F5F9;
+            --border-erreurs-home: #cbd5e1;
+        }
+
+        /* 🌙 Thème Sombre (activé par la classe .dark-mode sur <body>) */
+        body.dark-mode {
+            --c-buttonBurger: #ffffff;
+            --bg-body: #121212;
+            --bg-caseP: #1e1e1e;
+            --texte-principal: #f3f4f6;
+            --texte-secondaire: #9ca3af;
+            --texte-muter: #9ca3af;
+            --couleur-violet: #6366f1;
+            --couleur-violet-hover: #4f46e5;
+            --couleur-violet-clair: #2e325a;
+            --bg-element: #2a2a2a;
+            --bg-element-hover: #3a3a3a;
+            --border-couleur: #374151;
+            --ombre-carte: rgba(0, 0, 0, 0.5);
+            --bg-erreurs-home: #262626;
+            --border-erreurs-home: #404040;
+        }
+
+        /* ==========================================================================
+           2. RESET ET LAYOUT GENERAL
+           ========================================================================== */
+        
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--texte-principal);
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            flex-direction: column;
+            font-family: "Archivo Black", sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Conteneur principal utilisé pour chaque écran */
+        .casePrincipale {
+            background-color: var(--bg-caseP);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            text-align: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 5px 5px 15px var(--ombre-carte);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* ==========================================================================
+           3. TYPOGRAPHIE
+           ========================================================================== */
+
+        .archivo-black-regular {
+            font-family: "Archivo Black", sans-serif;
+            font-weight: 100;
+            font-style: normal;
+        }
+
+        h1 {
+            color: var(--couleur-violet);
+            font-size: 50px;
+            font-weight: 900;
+        }
+
+        h2 {
+            color: var(--couleur-violet);
+            font-size: x-large;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--texte-muter);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-align: left;
+            width: 100%;
+            font-weight: lighter;
+            font-size: medium;
+        }
+
+        p {
+            color: var(--texte-principal);
+            font-size: xx-large;
+        }
+
+        u {
+            font-family: "Archivo Black", sans-serif;
+            cursor: pointer;
+        }
+
+        /* Utilitaires de texte dynamiques */
+        .texteVert {
+            color: #1f9e4e;
+            font-weight: 900;
+        }
+
+        .texteRouge {
+            color: #ef4444;
+            font-weight: 900;
+        }
+
+        /* ==========================================================================
+           4. BOUTONS ET INTERACTIONS
+           ========================================================================== */
+        #btnBurger {
+            color: var(--c-buttonBurger);
+        }
+
+        /* Boutons principaux (Violet) */
+        #boutonVerifier,
+        .btnTable {
+            color: white;
+            background-color: var(--couleur-violet);
+            border: 2px solid var(--couleur-violet);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: "Archivo Black", sans-serif;
+            width: 100%;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #boutonVerifier {
+            margin-top: 10px;
+            height: 30px;
+        }
+
+        .btnTable {
+            margin-top: 20px;
+            height: 40px;
+            font-size: large;
+            font-weight: 900;
+        }
+
+        #boutonVerifier:hover,
+        .btnTable:hover {
+            background-color: var(--couleur-violet-hover);
+            border-color: var(--couleur-violet-hover);
+        }
+
+        .btnTable:active {
+            transform: scale(0.98);
+        }
+
+        .btnstats {
+            border: none;
+            color: var(--texte-muter);
+            background-color: transparent;
+        }
+
+        /* Bouton de travail des erreurs (Orange) */
+        #btnTravaillerErreurs {
+            background-color: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            width: 100%;
+            font-family: "Archivo Black", sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        #btnTravaillerErreurs:hover {
+            background-color: #d97706;
+        }
+
+        #btnTravaillerErreurs:active {
+            transform: scale(0.98);
+        }
+
+        /* ==========================================================================
+           5. ÉCRAN D'ACCUEIL & CONFIGURATIONS DU JEU
+           ========================================================================== */
+
+.en-tete {
+  display: flex;
+  justify-content: space-between; /* Pousse le titre à gauche et le bouton à droite */
+  align-items: center;
+  width: 100%;
+  position: relative; /* 🎯 Très important pour ancrer le menu ! */
+}
+
+/* Centre le titre dans l'en-tête tout en laissant le burger à droite */
+.en-tete h2 {
+    margin: 0;           /* Supprime marges par défaut */
+    flex: 1 1 auto;      /* Prend tout l'espace restant pour permettre centrage */
+    text-align: center;  /* Centre le texte horizontalement */
+    font-size: x-large;  /* Harmonise avec les autres titres */
+}
+
+
+        /* 📍 Positionnement du menu déroulant à droite */
+.menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background-color: var(--bg-caseP); /* Fond blanc / adapte au mode sombre */
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 12px var(--ombre-carte);
+  display: none; /* Caché par défaut */
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+/* 🔓 Affichage du menu quand il est ouvert */
+.menu.ouvert {
+  display: flex;
+}
+
+/* 🎨 Style du bouton burger */
+.btn-burger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* Bouton de thème dans le menu burger */
+#buttonTheme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: var(--couleur-violet);
+  color: white;
+  border: 2px solid var(--couleur-violet);
+  border-radius: 12px;
+  font-family: "Archivo Black", sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+#buttonTheme:hover {
+  background-color: var(--couleur-violet-hover);
+  border-color: var(--couleur-violet-hover);
+}
+
+#buttonTheme:active {
+  transform: scale(0.98);
+}
+
+/* -------------------------------------------------------------------------
+     Styles pour la section Statistiques dans le menu burger
+     - Les éléments sont simples et commentés ; le JS remplira les valeurs.
+ ------------------------------------------------------------------------- */
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.menu-section-title {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-label {
+    color: var(--text-muted, #6b7280);
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    font-weight: 700;
+}
+
+.menu-link {
+    background: transparent;
+    border: none;
+    color: var(--primary, #ef4444);
+    padding: 6px 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+/* En mode sombre, adapter les couleurs pour garder une bonne lisibilité */
+body.dark-mode .menu-section {
+    border-top-color: rgba(255,255,255,0.06);
+}
+body.dark-mode .stat-label { color: rgba(255,255,255,0.7); }
+body.dark-mode .menu-link { color: #f3f4f6; }
+
+/* 🎬 Animation SVG des 3 barres vers la croix ❌ */
+rect {
+  transform-origin: center;
+}
+
+.rect-1 {
+  y: 0;
+}
+.rect-2 {
+  y: 40px;
+}
+.rect-3 {
+  y: 80px;
+}
+
+[data-expanded="true"] .rect-1 {
+  y: 40px;
+  rotate: 45deg;
+}
+[data-expanded="true"] .rect-2 {
+  opacity: 0;
+}
+[data-expanded="true"] .rect-3 {
+  y: 40px;
+  rotate: -45deg;
+}
+
+/* ⏱️ Transitions pour rendre le mouvement fluide */
+@media (prefers-reduced-motion: no-preference) {
+  rect {
+    transition: 
+      y 0.3s 0.3s,
+      opacity 0.3s,
+      rotate 0.3s;
+  }
+  [data-expanded="true"] rect {
+    transition: 
+      y 0.3s,
+      opacity 0.3s,
+      rotate 0.3s 0.3s cubic-bezier(.55,-0.65,0,2.32);
+  }
+}
+
+        
+        /* Modes de jeu */
+        .zoneMode {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btnMode {
+            border: 1.5px solid var(--border-couleur);
+            border-radius: 10px;
+            background-color: var(--bg-element);
+            color: var(--texte-principal);
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btnMode:hover {
+            background-color: var(--bg-element-hover);
+        }
+
+        .btnMode:focus {
+            border: 1.5px solid var(--couleur-violet);
+        }
+
+        .btnMode.actif {
+            border: 2px solid var(--couleur-violet);
+            background-color: var(--couleur-violet-clair);
+            color: var(--couleur-violet);
+        }
+
+        /* Sélecteur de Multiplicateur */
+        #selecteurMultiplicateur {
+            flex-direction: column;
+        }
+
+        #infoMulti {
+            text-align: center;
+            margin-bottom: 0;
+            font-size: small;
+        }
+
+        .selecteur-multiplicateur {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0 10px 0;
+            font-family: "Archivo Black", sans-serif;
+        }
+
+        .label-multiplicateur {
+            white-space: nowrap;
+            font-size: medium;
+            font-weight: bold;
+            color: var(--texte-secondaire);
+        }
+
+        .boite-valeur {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-element);
+            border: 2px solid var(--border-couleur);
+            border-radius: 8px;
+            padding: 6px 16px;
+            cursor: ns-resize;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .boite-valeur:hover {
+            border-color: var(--couleur-violet);
+            background-color: var(--bg-element-hover);
+        }
+
+        .symbole-x {
+            color: var(--texte-muter);
+            font-weight: 900;
+            margin-right: 4px;
+            font-size: large;
+        }
+
+        #valeurMultiplicateur {
+            color: var(--couleur-violet);
+            font-weight: 900;
+            font-size: xl-large;
+        }
+
+        /* Choix des Tables (Grille & Tuiles) */
+        #tablesReviser {
+            font-size: large;
+            color: var(--couleur-violet);
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: lighter;
+        }
+
+        .zone-action-selection {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-selection {
+            background-color: var(--bg-element);
+            border: 1px solid var(--border-couleur);
+            color: var(--texte-secondaire);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-selection:hover {
+            background-color: var(--bg-element-hover);
+            color: var(--texte-principal);
+        }
+
+        #btnToutCocher:active,
+        #btnToutDecocher:active {
+            background-color: var(--couleur-violet);
+            color: white;
+        }
+
+        .zoneChoix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 10px;
+            margin: 15px auto;
+            max-width: 360px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .tuileTable {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 2 / 1;
+            padding: 8px 10px;
+            background-color: var(--bg-element);
+            color: var(--texte-principal);
+            border: 1.5px solid var(--border-couleur);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+
+        .tuileTable:hover {
+            background-color: var(--bg-element-hover);
+        }
+
+        .tuileTable input[type="checkbox"] {
+            display: none;
+        }
+
+        .tuileTable:has(input:checked) {
+            background-color: var(--couleur-violet);
+            border-color: var(--couleur-violet);
+            color: white;
+        }
+
+        /* Option du mode Carré & Toggle Switch */
+        #OptionCarre {
+            flex-direction: column;
+        }
+
+        #OptionCarretxt {
+            margin-top: 0;
+        }
+
+        .barre {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            height: 30px;
+            min-height: 30px;
+            gap: 8px;
+            padding: 0 12px;
+            background-color: var(--bg-element);
+            border: 1.5px solid var(--border-couleur);
+            margin-bottom: 10px;
+            border-radius: 10px;
+        }
+
+        .barre .inverse {
+            flex: 1;
+            text-align: left;
+            font-weight: 600;
+            color: var(--texte-secondaire);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-couleur);
+            transition: 0.3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .switch input:checked + .slider {
+            background-color: var(--couleur-violet);
+        }
+
+        .switch input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Section "Mes pires erreurs" (Home) */
+        .entete-erreurs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        #piresErreurs {
+            max-width: 250px;
+        }
+
+        #effacerErreurs {
+            font-size: x-small;
+            text-align: end;
+            margin-bottom: 0px;
+            color: var(--texte-muter);
+            font-weight: lighter;
+        }
+
+        #zoneErreursHome {
+            background-color: var(--bg-erreurs-home);
+            border: 2px solid var(--border-erreurs-home);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 12px;
+        }
+
+        #zoneErreursHome ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        #zoneErreursHome li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-couleur);
+        }
+
+        #zoneErreursHome li:last-child {
+            border-bottom: none;
+        }
+
+        .operation {
+            text-align: left;
+            font-weight: 500;
+            flex: 1;
+            color: var(--texte-muter);
+        }
+
+        .nombreErreurs {
+            text-align: right;
+            color: #ef4444;
+            background-color: #fee2e2;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: inline-block;
+            white-space: nowrap;
+            font-weight: 900;
+        }
+
+        /* ==========================================================================
+           6. ÉCRAN DE JEU
+           ========================================================================== */
+
+        #zoneScore {
+            align-self: flex-end;
+            font-size: larger;
+            color: var(--texte-muter);
+            margin-bottom: 20px;
+        }
+
+        #reponseUtilisateur {
+            height: 40px;
+            border: 2px solid var(--texte-muter);
+            border-radius: 10px;
+            text-align: center;
+            font-size: large;
+            font-weight: bold;
+            background-color: var(--bg-caseP);
+            color: var(--texte-principal);
+        }
+
+        #reponseUtilisateur:focus {
+            border: 2px solid var(--couleur-violet);
+            outline: none;
+        }
+
+        #message {
+            min-height: 32px;
+            margin-top: 10px;
+            font-size: x-large;
+            font-weight: bold;
+        }
+
+        /* ==========================================================================
+           7. ÉCRAN DES STATISTIQUES
+           ========================================================================== */
+
+        .zoneGraphique {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        #camembert {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#22c55e 0% 100%);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        #zonePourcentage {
+            font-size: xl-large;
+            font-weight: 900;
+            color: var(--couleur-violet);
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        #texteScoreFinal {
+            color: var(--couleur-violet-hover);
+            font-size: large;
+        }
+
+        #zonefelicitations {
+            color: #22c55e;
+            font-size: medium;
+        }
+
+        #listeErreurs {
+            list-style-type: none;
+            padding: 0;
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            display: none;
+        }
+
+        #listeErreurs li {
+            background-color: var(--bg-caseP);
+            color: var(--texte-principal);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-couleur);
+            border-left: 6px solid #ef4444;
+            font-size: medium;
+            font-weight: bold;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background-image: linear-gradient(to right, #ef4444 50%, var(--bg-caseP) 50%);
+            background-size: 200% 100%;
+            background-position: right bottom;
+            transition: all 0.5s ease;
+        }
+
+        #listeErreurs li:hover {
+            background-position: left bottom;
+            color: #ffffff;
+        }
+
+        #listeErreurs li.felicitations {
+            border-left: 6px solid #22c55e;
+            background-image: linear-gradient(to right, #22c55e 50%, var(--bg-caseP) 50%);
+        }
+
+        #listeErreurs li.felicitations:hover {
+            color: #ffffff;
+        }
+
+        #listeErreurs li:hover .texteVert {
+            color: #2bcf67;
+        }
+
+        #listeErreurs li:hover .texteRouge {
+            color: #ffffff;
+        }
+</style>
+
+</head>
+<body>
+    <div id="ecranAccueil" class="casePrincipale">
+        <!-- En-tête : titre et bouton burger alignés en flex -->
+        <div class="en-tete">
+            <h2>Math Master</h2>
+            <!-- 🍔 Bouton avec l'icône burger en SVG -->
+            <button id="btnBurger" class="btn-burger" data-expanded="false" aria-expanded="false">
+                <svg width="30" height="30" viewBox="0 0 100 100" aria-hidden="true">
+                    <rect class="rect-1" width="100" height="20" rx="10" fill="currentColor" />
+                    <rect class="rect-2" width="100" height="20" rx="10" fill="currentColor" />
+                    <rect class="rect-3" width="100" height="20" rx="10" fill="currentColor" />
+                </svg>
+            </button>
+        </div>
+
+
+<!-- 📜 Menu déroulant -->
+<nav id="menuDeroulant" class="menu">
+    <button id="buttonTheme"></button>
+
+    <!-- SECTION: Statistiques (affichée dans le menu burger) -->
+    <section id="sectionStatistiques" class="menu-section">
+        <!-- Titre de la section -->
+        <h4 class="menu-section-title">Statistiques</h4>
+
+        <!-- Statistiques principales: nous laissons les éléments vides; le JS remplira ces valeurs -->
+        <div class="stat-row">
+            <span class="stat-label">Total de parties :</span>
+            <span id="stat-total-parties" class="stat-value">—</span>
+        </div>
+
+        <div class="stat-row">
+            <span class="stat-label">Taux de réussite :</span>
+            <span id="stat-score-moyen" class="stat-value">—</span>
+        </div>
+
+        <div class="stat-row">
+            <span class="stat-label">Erreurs totales :</span>
+            <span id="stat-erreurs-totales" class="stat-value">—</span>
+        </div>
+
+        <!-- Lien d'action (ex: réinitialiser les stats) — uniquement affichage HTML/CSS ici -->
+        <button id="stat-reset" class="menu-link">Réinitialiser les statistiques</button>
+    </section>
+</nav>
+
+    
+    <h3>Mode de jeu :</h3>
+    <div class="zoneMode"><button class="btnMode" id="btnClassic">Classique</button><button class="btnMode" id="btnA-trous">A trous</button><button class="btnMode" id="btnCarres">Carrés</button></div> 
+    <span id="OptionCarre"><h3 id="OptionCarretxt">Option du mode carré :</h3>
+        <div class="barre" id="zoneInversé">
+            <!-- le texte "Inversé" est à gauche -->
+            <span class="inverse">Inversé</span>
+            <!-- checkbox transformée en slider : le slider est à droite -->
+            <label class="switch">
+                <input type="checkbox" id="inversé" class="btnonoff">
+                <span class="slider"></span>
+            </label>
+        </div></span>
+    <h3 id="tablesReviser">Tables à réviser :</h3>
+    <div  id="selecteurMultiplicateur"><h3 id="infoMulti"></h3>
+    <div class="selecteur-multiplicateur">
+    <span class="label-multiplicateur">Multiplicateur :</span>
+    <div class="boite-valeur" id="boiteValeur">
+        <span class="symbole-x">x</span>
+        <span id="valeurMultiplicateur">10</span>
+    </div></div>
+</div>
+<div class="zone-action-selection">
+    <button type="button" id="btnToutCocher" class="btn-selection">Tout cocher</button>
+    <button type="button" id="btnToutDecocher" class="btn-selection">Tout décocher</button>
+</div>
+    <div class="zoneChoix">
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="1">1
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="2">2
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="3">3
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="4">4
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="5">5
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="6">6
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="7">7
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="8">8
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="9">9
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="10">10
+        </label>
+         <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="11">11
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="12">12
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="13">13
+        </label>
+        <label class="tuileTable">
+            <input type="checkbox" class="choixTable" value="14">14
+        </label>
+        <!--On utilise un label pour que ça fasse le tour, le css retire la coche et change la couleur avec le hover et quand on clique dessus.-->
+    </div>
+
+    <button id="boutonCommencer" class="btnTable">demarrer le jeu</button>
+    <div class="entete-erreurs">
+    <h3 id="piresErreurs">MES PIRES ERREURS :</h3>
+    <p id="effacerErreurs"><u>Effacer</u></p></div>
+    <div id="zoneErreursHome">
+        <div id="listeerreurTotal"></div>
+    </div> 
+    <button id="btnTravaillerErreurs">Travailler sur mes erreurs</button>
+</div>
+
+<div id="ecranJeu" class="casePrincipale" style="display: none;">
+    <p id="zoneScore"></p>
+    <p id="calcul"></p>
+    <input id="reponseUtilisateur" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="?">
+    <button id="boutonVerifier">Valider</button>
+    <p id="message"></p>
+    <button id="boutonFinir" class="btnstats"><u>--Terminer la partie--</u></button>
+</div>
+<div id="ecranStats" class="casePrincipale" style="display: none;">
+    <h2>Résultats de la partie :</h2>
+    
+    <div class="zoneGraphique">
+        <div id="camembert"></div>
+    </div>
+    <p id="zonePourcentage">0% de réussite</p>
+    
+    <p id="texteScoreFinal">Score final : 0 / 0</p>
+    
+    <h3>Détail des erreurs de la partie :</h3>
+    <ul id="listeErreurs"></ul>
+    <p id="zonefelicitations"></p>
+
+    <button id="returnHome" class="btnTable">Revenir au home</button>
+</div>
+
+    <script>
+        // 1. On lit la mémoire du navigateur 🧠
+        let maj2connue = localStorage.getItem('maj2connue');
+
+        // 2. Si la valeur enregistrée n'est pas le texte 'true' 🔔
+        if (maj2connue !== 'true') {
+            alert(`Nouvelle mise à jour !
+Nouveau mode inversé ! 
+Nouveau mode sombre automatique !
+`);
+    
+            // 3. On enregistre le texte 'true' pour les prochaines visites 💾
+            localStorage.setItem('maj2connue', 'true');
+        }
+
+        
+
+        const bouton = document.getElementById('boutonVerifier');
+        const zoneCalcul = document.getElementById('calcul');
+        const champReponse = document.getElementById('reponseUtilisateur');
+        const zoneMessage = document.getElementById('message');
+        const zoneScore = document.getElementById('zoneScore');
+
+        // On sélectionne les deux écrans et le bouton Commencer
+        const ecranAccueil = document.getElementById('ecranAccueil');
+        const ecranJeu = document.getElementById('ecranJeu');
+        const boutonCommencer = document.getElementById('boutonCommencer');// 1. Sélection des nouveaux éléments HTML
+        const ecranStats = document.getElementById('ecranStats');
+        const boutonFinir = document.getElementById('boutonFinir');
+        const texteScoreFinal = document.getElementById('texteScoreFinal');
+        const listeErreurs = document.getElementById('listeErreurs');
+        const camembert = document.getElementById('camembert');
+        const zonePourcentage = document.getElementById('zonePourcentage');
+        const zonefelicitations = document.getElementById('zonefelicitations');
+        const boiteValeur = document.getElementById('boiteValeur');
+        const valeurMultiplicateur = document.getElementById('valeurMultiplicateur');
+        const zoneErreursHome = document.getElementById('zoneErreursHome');
+        const listeerreurTotal = document.getElementById('listeerreurTotal');
+        const returnHome = document.getElementById('returnHome');
+        const btnToutCocher = document.getElementById('btnToutCocher');
+        const btnToutDecocher = document.getElementById('btnToutDecocher');
+        const toutesLesCasesHTML = document.querySelectorAll('.choixTable');
+        const valeurParDefaut = 10;
+        const isMobile = window.matchMedia("(pointer: coarse)").matches;
+        const infoMulti = document.getElementById('infoMulti');
+        const btnEffacer = document.getElementById('effacerErreurs');
+        const selecteurMultiplicateur = document.getElementById('selecteurMultiplicateur');
+        const tablesReviser = document.getElementById('tablesReviser');
+        const btnTravaillerErreurs = document.getElementById('btnTravaillerErreurs');
+        const OptionCarre = document.getElementById('OptionCarre');
+        const inverse = document.getElementById('inversé');
+        const buttonTheme = document.getElementById('buttonTheme');
+        const statTotalParties = document.getElementById('stat-total-parties');
+        const statScoreMoyen = document.getElementById('stat-score-moyen');
+        const statErreursTotales = document.getElementById('stat-erreurs-totales');
+        const statReset = document.getElementById('stat-reset');
+
+        const btnClassic = document.getElementById('btnClassic');
+        const btnAtrous = document.getElementById('btnA-trous');
+        const btnCarres = document.getElementById('btnCarres');
+
+
+        const LIMITE_MIN_VALEUR = 1;
+        const LIMITE_MAX_VALEUR = 14;
+
+        // Cette variable vide va stocker la liste des tables choisies (ex: [2, 5])
+        let tablesChoisies = [];
+
+        let nombre1 = 0;
+        let nombre2 = 0;
+        let bonneReponse = 0;
+        let score = 0;
+        let totalQuestions = 0;
+        // 2. La boîte vide pour stocker les erreurs (ex: ["2 x 5 = 10 (tu as mis 12)", ...])
+        let historiqueErreurs = [];
+        let erreurTotal = {
+            classique: {},
+            atrous: {},
+            carres: {},
+            carresInverse: {} // Erreurs de carrés enregistrées en mode inversé
+        };
+
+        let modeErreurActif = false;
+        let modeErreurCarresInverse = false; // Pour conserver le type d'erreur carres pendant la correction, même si le checkbox change après
+        let modeInverseActif = false; // Etat actuel du toggle Inversé sur l'écran d'accueil
+        let operationEnCours = "";
+
+        let modeActuel = 'classique'; //Le mode par défaut quand on démarre
+
+        let stats = { totalGames: 0, totalErrors: 0, totalScore: 0, totalQuestions: 0 };
+
+        function changerMode(nouveauMode, boutonClique) {
+            modeActuel = nouveauMode;
+
+            //On retire la classe 'actif' de tous les boutons
+            document.querySelectorAll('.btnMode').forEach(btn => btn.classList.remove('actif'));
+            //Pour le remettre que sur celui qui est cliqué
+            boutonClique.classList.add('actif');
+
+            if(modeActuel == 'carres') {
+                selecteurMultiplicateur.style.display = 'none';
+                tablesReviser.style.marginBottom = '10px';
+                OptionCarre.style.display = 'flex';
+            } else {
+                selecteurMultiplicateur.style.display = 'flex';
+                tablesReviser.style.marginBottom = '0';
+                OptionCarre.style.display = 'none';
+            }
+            afficherErreursAccueil();
+        }
+
+        // 1. On récupère les deux éléments dans le DOM 🔍
+const btnBurger = document.getElementById('btnBurger');
+const menuDeroulant = document.getElementById('menuDeroulant');
+
+// 2. On écoute le clic sur le bouton burger 🖱️
+btnBurger.addEventListener('click', () => {
+    // Vérifie si le menu est actuellement ouvert
+    const estOuvert = btnBurger.getAttribute('data-expanded') === 'true';
+
+    // Bascule l'animation de l'icône (true <-> false)
+    btnBurger.setAttribute('data-expanded', !estOuvert);
+
+    // Bascule l'affichage du menu déroulant
+    menuDeroulant.classList.toggle('ouvert');
+});
+
+        // Charger les stats depuis le navigateur et mettre à jour l'objet stats.
+        const savedTotalGames = parseInt(localStorage.getItem('stats.totalGames'), 10) || 0;
+        const savedTotalErrors = parseInt(localStorage.getItem('stats.totalErrors'), 10) || 0;
+        const savedTotalScore = parseInt(localStorage.getItem('stats.totalScore'), 10) || 0;
+        const savedTotalQuestions = parseInt(localStorage.getItem('stats.totalQuestions'), 10) || 0;
+        const savedTauxGlobal = localStorage.getItem('stats.tauxGlobal') || '—';
+
+        stats.totalGames = savedTotalGames;
+        stats.totalErrors = savedTotalErrors;
+        stats.totalScore = savedTotalScore;
+        stats.totalQuestions = savedTotalQuestions;
+
+        statTotalParties.textContent = savedTotalGames;
+        statScoreMoyen.textContent = savedTauxGlobal;
+        statErreursTotales.textContent = savedTotalErrors;
+
+        // Mode sombre — initialise selon la préférence système ou le choix sauvegardé,
+        // persiste le choix dans localStorage et écoute les changements système si aucun choix sauvegardé.
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                buttonTheme.textContent = "☀️ Thème clair";
+            } else {
+                document.body.classList.remove('dark-mode');
+                buttonTheme.textContent = "🌙 Thème sombre";
+            }
+        }
+
+        // Récupère le choix de l'utilisateur si présent
+        const savedTheme = localStorage.getItem('theme'); // 'dark' | 'light' | null
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme(prefersDark ? 'dark' : 'light');
+        }
+
+        // Clic utilisateur : bascule le thème et sauvegarde la préférence
+        buttonTheme.addEventListener('click', () => {
+            const isNowDark = document.body.classList.toggle('dark-mode');
+            const newTheme = isNowDark ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Si l'utilisateur n'a pas explicitement choisi un thème, suivre les changements système
+        if (window.matchMedia) {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)');
+            const systemChangeHandler = (e) => {
+                if (!localStorage.getItem('theme')) {
+                    applyTheme(e.matches ? 'dark' : 'light');
+                }
+            };
+            if (typeof mq.addEventListener === 'function') {
+                mq.addEventListener('change', systemChangeHandler);
+            } else if (typeof mq.addListener === 'function') {
+                mq.addListener(systemChangeHandler);
+            }
+        }
+
+        btnTravaillerErreurs.addEventListener('click', function() {
+            // Choisir le bon dossier d'erreurs à corriger selon le mode courant.
+            // En carré, on corrige soit les erreurs normales, soit les erreurs inversées,
+            // selon l'état du checkbox INVERSE au moment où l'on lance la correction.
+            const erreursEnCours = modeActuel === 'carres'
+                ? (modeInverseActif ? erreurTotal.carresInverse : erreurTotal.carres)
+                : erreurTotal[modeActuel];
+
+            let operation = Object.keys(erreursEnCours);
+
+            if(operation.length === 0) {
+                alert("Tu n'as aucune erreur à réviser pour ce mode ! Bravo 🎉");
+                return;
+            }
+
+            modeErreurActif = true; // On active le mode révision
+            modeErreurCarresInverse = (modeActuel === 'carres') ? modeInverseActif : false; // On garde le type d'erreur carres sélectionné
+            score = 0;
+            totalQuestions = 0;
+            historiqueErreurs = [];
+
+            ecranAccueil.style.display = 'none';
+            ecranJeu.style.display = 'flex';
+
+            generateCalcul();
+        });
+
+        inverse.addEventListener('change', function() {
+            // Le mode inversé doit suivre l'état du checkbox : true si coché, false sinon.
+            modeInverseActif = inverse.checked;
+
+            // Si on est sur l'écran d'accueil en mode Carrés, mettre à jour la liste des erreurs immédiatement.
+            // Cela garantit que la page affiche les erreurs normales ou inversées selon l'état du toggle.
+            if (modeActuel === 'carres' && ecranAccueil.style.display !== 'none') {
+                afficherErreursAccueil();
+            }
+        });
+
+        // Ecouter les évènements des boutons Mode
+        btnClassic.addEventListener('click', () => changerMode('classique', btnClassic));
+        btnAtrous.addEventListener('click', () => changerMode('atrous', btnAtrous));
+        btnCarres.addEventListener('click', () => changerMode('carres', btnCarres));
+
+        //Au chargement de la page, on active classique comme mode par défaut
+        btnClassic.classList.add('actif');
+        OptionCarre.style.display = 'none';
+
+        // --- Stockage des erreurs dans le navigateur ---
+        // On utilise localStorage pour garder les erreurs même après un rechargement de la page.
+        const CLE_ERREURS = 'erreursMultiplications';
+
+        // Cette fonction enregistre l'objet erreurTotal dans le navigateur.
+        function sauvegarderErreurs() {
+            localStorage.setItem(CLE_ERREURS, JSON.stringify(erreurTotal));
+        }
+
+        // Cette fonction sert à retrouver les erreurs qui ont été sauvegardées avant.
+        // Elle regarde dans le navigateur si une ancienne sauvegarde existe.
+        function chargerErreurs() {
+            // 1) On essaie de lire la valeur stockée sous la clé CLE_ERREURS.
+            // Si rien n'existe, la variable donnees vaut null et on quitte la fonction.
+            const donnees = localStorage.getItem(CLE_ERREURS);
+            if (!donnees) return;
+
+            // 2) On tente de transformer la chaîne de texte stockée en objet JavaScript.
+            // Par exemple : "{\"2 x 3\":{\"fois\":1}}" devient un vrai objet utilisable.
+            // C'est ce que fait JSON.parse().
+            try {
+                const objetCharge = JSON.parse(donnees);
+
+                // 3) Si l'objet récupéré est bien un objet valide, on le remplace dans erreurTotal.
+                // Cela permet de reprendre les anciennes erreurs au prochain chargement de la page.
+                if (objetCharge && typeof objetCharge === 'object') {
+                    erreurTotal = {
+                        classique: objetCharge.classique || {},
+                        atrous: objetCharge.atrous || {},
+                        carres: objetCharge.carres || {},
+                        carresInverse: objetCharge.carresInverse || {}
+                    };
+                }
+            }
+            // 4) catch = "si quelque chose ne va pas pendant la lecture, fais ceci".
+            // Ici, on évite que la page casse si le stockage est corrompu ou invalide.
+            catch (e) {
+                console.warn('Erreur de lecture des erreurs sauvegardées', e);
+            }
+        }
+
+        // On charge les erreurs dès le lancement de la page.
+        chargerErreurs();
+
+        //Pour la molette du multiplicateur
+        const limiteSauvegardee = parseInt(localStorage.getItem('limiteMaxCle'), 10);
+        let limiteMax = Number.isInteger(limiteSauvegardee)
+            ? Math.max(LIMITE_MIN_VALEUR, Math.min(LIMITE_MAX_VALEUR, limiteSauvegardee))
+            : valeurParDefaut;
+
+        let multiCompris = localStorage.getItem('multiComprisCle') === 'true';
+        if (multiCompris) {
+            infoMulti.style.display = 'none';
+        }
+        let enTrainDeGlisser = false;
+        let yDepart = 0;
+        let valeurDepart = limiteMax;
+
+        valeurMultiplicateur.textContent = limiteMax;
+
+        if(isMobile) {
+            infoMulti.innerHTML = "Glisser pour modifier ⬇️";
+        } else {
+            infoMulti.innerHTML = "Molette ou glissez pour modifier ⬇️";
+        }
+
+        
+        // Cette fonction sert à afficher les erreurs sur la page d'accueil.
+        // Elle regarde toutes les opérations ratées enregistrées dans erreurTotal.
+        function afficherErreursAccueil() {
+            // 1) On vide d'abord la zone d'affichage pour éviter d'afficher des anciens contenus.
+            listeerreurTotal.innerHTML = "";
+
+            // En mode Carrés, on affiche soit les erreurs normales, soit les erreurs inversées,
+            // selon l'état actuel du toggle Inversé.
+            const erreursAffichees = modeActuel === 'carres'
+                ? (modeInverseActif ? erreurTotal.carresInverse : erreurTotal.carres)
+                : erreurTotal[modeActuel];
+            const operations = Object.keys(erreursAffichees);
+
+            if (operations.length === 0) {
+                listeerreurTotal.innerHTML = '<span class="texteVert">R. A. S. sur ce mode, bravo !</span>';
+            } else {
+                listeerreurTotal.appendChild(creerListeErreurs(erreursAffichees));
+            }
+        }
+
+        function creerListeErreurs(erreurs) {
+            const ul = document.createElement('ul');
+            ul.style.padding = '0';
+            ul.style.margin = '0';
+            ul.style.listStyle = 'none';
+
+            Object.keys(erreurs).forEach(function(operation) {
+                const info = erreurs[operation];
+                const li = document.createElement('li');
+                const nombreEchecs = info.fois;
+
+                const spanOp = document.createElement('span');
+                spanOp.className = 'operation';
+                spanOp.textContent = operation;
+
+                const spanErreur = document.createElement('span');
+                spanErreur.className = 'nombreErreurs';
+                spanErreur.textContent = nombreEchecs + ' échec' + (nombreEchecs > 1 ? 's' : '');
+
+                li.appendChild(spanOp);
+                li.appendChild(spanErreur);
+                ul.appendChild(li);
+            });
+
+            return ul;
+        }
+
+        afficherErreursAccueil();
+            
+
+        zoneScore.textContent = "Score : 0 / 0";
+
+        // 1. Pré-cocher les tables à l'ouverture du jeu (Ex: Tables de 1 à 10)
+        // Tu peux modifier la liste [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] si tu veux en pré-cocher d'autres !
+        const tablesParDefaut = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+        toutesLesCasesHTML.forEach(function(caseACocher) {
+            const valeurTable = parseInt(caseACocher.value);
+            if (tablesParDefaut.includes(valeurTable)) {
+                caseACocher.checked = true;
+            }
+        });
+
+        // 2. Fonction pour TOUT cocher
+        btnToutCocher.addEventListener('click', function() {
+            toutesLesCasesHTML.forEach(function(caseACocher) {
+            caseACocher.checked = true;
+            });
+        });
+
+        // 3. Fonction pour TOUT décocher
+        btnToutDecocher.addEventListener('click', function() {
+            toutesLesCasesHTML.forEach(function(caseACocher) {
+            caseACocher.checked = false;
+            });
+        });
+
+
+        // Bouton pour effacer l'historique des erreurs enregistré dans le navigateur.
+        btnEffacer.addEventListener('click', function() {
+            // Si aucune erreur n'est enregistrée, on ne fait rien.
+            // En carré, on efface le bon dossier selon l'état du checkbox Inversé.
+            const dossierErreurs = modeActuel === 'carres'
+                ? (modeInverseActif ? erreurTotal.carresInverse : erreurTotal.carres)
+                : erreurTotal[modeActuel];
+
+            if (Object.keys(dossierErreurs).length !== 0) {
+                if (confirm(`Veux-tu vraiment supprimer ton historique d'erreurs pour le mode ${modeActuel} ?`)) {
+                    // On vide l'objet JS et on sauvegarde le nouvel état dans le navigateur.
+                    if (modeActuel === 'carres') {
+                        if (modeInverseActif) {
+                            erreurTotal.carresInverse = {};
+                        } else {
+                            erreurTotal.carres = {};
+                        }
+                    } else {
+                        erreurTotal[modeActuel] = {};
+                    }
+                    sauvegarderErreurs();
+
+                    // On affiche un message de confirmation puis on met à jour l'écran d'accueil.
+                    listeerreurTotal.innerHTML = '<span class="texteVert">Erreurs bien effacées !</span>';
+
+                    setTimeout(function() {
+                        afficherErreursAccueil();
+                    }, 1000);
+                }
+            } else {
+                alert("Tu n'as pas d'erreurs à supprimer.");
+            }
+        });
+
+        function demarrerJeu() {
+            modeErreurActif = false;
+            const toutesLesCases = document.querySelectorAll('.choixTable');
+
+            tablesChoisies = [];
+
+            toutesLesCases.forEach(function(caseACocher) {
+                if(caseACocher.checked){
+                    tablesChoisies.push(parseInt(caseACocher.value));
+                }
+            });
+            if (tablesChoisies.length === 0) {
+                alert("Choisis au moins une table avant de commencer !");
+                return;
+            }
+
+            // Réinitialiser les statistiques et les erreurs à chaque nouvelle partie.
+            score = 0;
+            totalQuestions = 0;
+            historiqueErreurs = [];
+            listeErreurs.innerHTML = "";
+            zoneScore.textContent = "Score : 0 / 0";
+
+            // Fermer le menu burger si il était ouvert
+            menuDeroulant.classList.remove('ouvert');
+            btnBurger.setAttribute('data-expanded', 'false');
+
+            // On cache l'écran d'accueil et on affiche l'écran de jeu
+            ecranAccueil.style.display = 'none';
+            ecranJeu.style.display = 'flex';
+
+            generateCalcul();
+        }
+
+
+        function retournerHome() {
+            ecranAccueil.style.display = 'flex';
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'none';
+
+            // On vide la zone d'accueil avant de la remplir avec les erreurs.
+            listeErreurs.innerHTML = "";
+
+            // On réutilise la fonction d'affichage pour garder le même rendu sur l'accueil.
+            afficherErreursAccueil();
+        }
+
+        boutonCommencer.addEventListener('click', demarrerJeu);
+        bouton.addEventListener('click', verifierReponse);
+        champReponse.focus();
+
+        function generateCalcul() {
+            if(modeErreurActif){
+                // En mode correction d'erreur, on utilise le type d'erreur carres enregistré
+                // au moment du lancement de la correction, pas l'état actuel du toggle.
+                const erreursEnCours = modeActuel === 'carres'
+                    ? (modeErreurCarresInverse ? erreurTotal.carresInverse : erreurTotal.carres)
+                    : erreurTotal[modeActuel];
+
+                let operation = Object.keys(erreursEnCours);
+
+                // Vérification s'il reste des erreurs
+                if (operation.length === 0) {
+                    modeErreurActif = false;
+                    sauvegarderErreurs();
+                    alert("Vous avez tout corrigé !");
+                    retournerHome();
+                    return;
+                }
+
+                let index = Math.floor(Math.random() * operation.length);
+                operationEnCours = operation[index];
+                bonneReponse = nombre1 * nombre2;
+
+                if(modeActuel === 'classique') {
+                    let parts = operationEnCours.split(' x ');
+                    nombre1 = parseInt(parts[0]);
+                    nombre2 = parseInt(parts[1]);
+                    bonneReponse = nombre1 * nombre2;
+                    zoneCalcul.textContent = nombre1 + " x " + nombre2;
+                } else if (modeActuel === 'atrous') {
+                    let parts = operationEnCours.split(' x ? = ');
+                    nombre1 = parseInt(parts[0]);
+                    let produit = parseInt(parts[1]);
+                    bonneReponse = produit / nombre1;
+                    zoneCalcul.textContent = nombre1 + " x ? = " + produit;
+                } else if (modeActuel === 'carres') {
+                    // Recalculer le nombre à partir de l'opération enregistrée.
+                    nombre1 = parseInt(operationEnCours.replace('²', ''));
+                    const produit = nombre1 * nombre1;
+
+                    if (modeErreurCarresInverse) {
+                        // Correction d'une erreur carres inversé : afficher le produit et demander la racine carrée.
+                        bonneReponse = nombre1;
+                        zoneCalcul.textContent = produit;
+                    } else {
+                        // Correction d'une erreur carres normale : afficher la puissance et demander le résultat.
+                        bonneReponse = produit;
+                        zoneCalcul.textContent = nombre1 + "² = ?";
+                    }
+                }
+
+            } else {
+            //Générer 2 nombres aléatoires entre 1 et 10
+            const indexAleatoire = Math.floor(Math.random() * tablesChoisies.length);
+            nombre1 = tablesChoisies[indexAleatoire];
+            nombre2 = Math.floor(Math.random() * limiteMax) + 1;
+
+
+            if (modeActuel === 'classique') {
+                bonneReponse = nombre1 * nombre2;
+                zoneCalcul.textContent = nombre1 + " x " + nombre2;
+            } else if (modeActuel === 'atrous') {
+                bonneReponse = nombre2;
+                let produit = nombre1 * nombre2;
+                zoneCalcul.textContent = nombre1 + " x ? = " + produit;
+            } else if (modeActuel === 'carres') {
+                const produit = nombre1 * nombre1;
+
+                if (modeInverseActif) {
+                    // Mode inversé : donner le produit et demander le nombre de départ.
+                    bonneReponse = nombre1;
+                    zoneCalcul.textContent = produit;
+                } else {
+                    // Mode normal : donner le carré et demander le résultat.
+                    bonneReponse = produit;
+                    zoneCalcul.textContent = nombre1 + "² = ?";
+                }
+            }
+            }
+
+            champReponse.value = "";
+            zoneMessage.textContent = "";
+            champReponse.focus();
+        }
+
+        // Cette fonction sert à enregistrer une erreur dans un objet appelé erreurTotal.
+        // Elle reçoit la réponse donnée par l'utilisateur en paramètre.
+        function enregistrerErreurDansObjet() {
+            // On crée une clé sous forme de texte : par exemple "3 x 4"
+            let operation = "";
+            let dossierErreurs = erreurTotal[modeActuel];
+
+            if (modeActuel === 'classique') {
+                operation = nombre1 + " x " + nombre2;
+            } else if (modeActuel === 'atrous') {
+                operation = nombre1 + " x ? = " + (nombre1 * nombre2);
+            } else if (modeActuel === 'carres') {
+                operation = nombre1 + "²";
+                // On enregistre l'erreur dans le bon dossier selon l'état du toggle Inversé
+                // au moment où l'erreur est commise.
+                dossierErreurs = modeInverseActif ? erreurTotal.carresInverse : erreurTotal.carres;
+            }
+
+            // Si cette opération n'existe pas encore dans l'objet, on la crée.
+            // On met ensuite :
+            // - fois : combien de fois cette erreur est arrivée
+            // - bonneReponse : la réponse correcte
+            // - derniereReponse : la dernière mauvaise réponse donnée
+            if (!dossierErreurs[operation]) {
+                dossierErreurs[operation] = {
+                    fois: 1
+                };
+            } else {
+                // Si l'opération existe déjà, on augmente le compteur
+                // et on remplace la dernière mauvaise réponse par la nouvelle.
+                dossierErreurs[operation].fois += 1;
+            }
+
+            // On sauvegarde immédiatement la nouvelle erreur dans le navigateur.
+            sauvegarderErreurs();
+        }
+
+        // À faire ensuite dans la fonction verifierReponse() :
+        // 1. récupérer la réponse de l'utilisateur
+        // 2. vérifier si elle est bonne ou mauvaise
+        // 3. si elle est mauvaise, appeler enregistrerErreurDansObjet(reponseDonnee)
+        // 4. afficher le message d'erreur
+        function verifierReponse() {
+            // Si le champ est vide, on ne fait rien et on quitte la fonction.
+            if (champReponse.value.trim() === "") {
+                return;
+            }
+            //Retire les espace en ajoutant une etape avant d'enregistere le champ de réonse dans reponseDonnee en remplaçant les espace par rien.
+            let textNettoye = champReponse.value.replace(/\s+/g, '');
+            let reponseDonnee = parseInt(textNettoye);
+
+            if (Number.isNaN(reponseDonnee)) {
+                alert("Ta réponse n'est pas valide");
+                return;
+            } else {
+            reponseDonnee = reponseDonnee
+
+            totalQuestions = totalQuestions + 1;
+
+            if (reponseDonnee === bonneReponse) {
+                zoneMessage.textContent = "Bonne reponse";
+                zoneMessage.style.color = "Green";
+                score = score + 1;
+                if (modeErreurActif) {
+                    if (modeActuel === 'carres') {
+                        // Supprimer l'erreur dans le bon dossier de correction carres,
+                        // selon le type d'erreur enregistré au démarrage du mode correction.
+                        const dossierErreurs = modeErreurCarresInverse ? erreurTotal.carresInverse : erreurTotal.carres;
+                        delete dossierErreurs[operationEnCours];
+                    } else {
+                        delete erreurTotal[modeActuel][operationEnCours];
+                    }
+                    sauvegarderErreurs();
+                }
+                zoneScore.textContent = "Score : " + score + "/" + totalQuestions;
+                champReponse.focus();
+                setTimeout(generateCalcul, 250);
+            } else {
+                zoneMessage.innerHTML = `
+                Mauvaise réponse
+                <br>
+                <span class="texteVert">Bonne Réponse : ${bonneReponse}</span>
+            `;
+                zoneMessage.style.color = "red";
+
+                historiqueErreurs.push(nombre1 + " x " + nombre2 + " = <span class='texteVert'>" + bonneReponse + "</span> (tu as écrit <span class='texteRouge'>" + reponseDonnee + "</span>)");
+                enregistrerErreurDansObjet(reponseDonnee);
+                zoneScore.textContent = "Score : " + score + "/" + totalQuestions;
+                champReponse.focus();
+                setTimeout(generateCalcul, 1000);
+            }
+        }
+        }
+        
+
+
+        
+        // Explication simple de la fonction enregistrerErreurDansObjet :
+        // 1. On crée une clé avec la multiplication actuelle, par exemple "2 x 5".
+        // 2. Si cette multiplication n'a jamais été ratée, on crée un objet pour elle.
+        // 3. Si elle a déjà une erreur enregistrée, on ajoute 1 au compteur.
+        // 4. On garde aussi la bonne réponse et la dernière mauvaise réponse.
+        //
+        // Exemple de résultat dans l'objet :
+        // erreurTotal = {
+        //   "2 x 5": { fois: 2, bonneReponse: 10, derniereReponse: 9 }
+        // };
+        //
+        // À retenir :
+        // - un objet permet de regrouper plusieurs informations sous un nom
+        // - une clé est l'identifiant de chaque donnée (ici la multiplication)
+        // - une valeur est un objet contenant plusieurs infos
+
+        function afficherStats() {
+            if(totalQuestions === 0){
+                ecranJeu.style.display = 'none';
+                ecranAccueil.style.display = 'flex';
+            } else {
+            ecranJeu.style.display = 'none';
+            ecranStats.style.display = 'flex';
+
+            texteScoreFinal.textContent = "Score final : " + score + " / " + totalQuestions;
+
+            listeErreurs.innerHTML = "";
+            zonefelicitations.textContent = "";
+
+            if (historiqueErreurs.length === 0) {
+                listeErreurs.style.display = 'none'; 
+                zonefelicitations.innerHTML = `<span class="texteVert">Félicitations, tu n'as pas fait d'erreurs !</span>`;
+            } else {
+                listeErreurs.style.display = 'block'; 
+                zonefelicitations.style.display= 'none';
+        
+                historiqueErreurs.forEach(function(erreur) {
+                let elementLi = document.createElement('Li');
+                elementLi.innerHTML = erreur;
+                listeErreurs.appendChild(elementLi);
+                });
+            }
+
+            // 🎯 Maintenant, ce bloc s'exécutera QUEL QUE SOIT le score (avec ou sans erreur)
+            let pourcentageJuste = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0;
+    
+            zonePourcentage.textContent = pourcentageJuste.toFixed(1) + "% de réussite";
+    
+            camembert.style.background = "conic-gradient(#22c55e 0% " + pourcentageJuste + "%, #ef4444 " + pourcentageJuste + "% 100%)";
+
+            stats.totalGames += 1;
+            stats.totalErrors += historiqueErreurs.length;
+            stats.totalScore += score;
+            stats.totalQuestions += totalQuestions;
+
+            const tauxGlobal = stats.totalQuestions ? (stats.totalScore / stats.totalQuestions) * 100 : 0;
+
+            statTotalParties.textContent = stats.totalGames;
+            statScoreMoyen.textContent = tauxGlobal.toFixed(1) + "%";
+            statErreursTotales.textContent = stats.totalErrors;
+
+            localStorage.setItem('stats.totalGames', stats.totalGames);
+            localStorage.setItem('stats.tauxGlobal', tauxGlobal.toFixed(1) + "%");
+            localStorage.setItem('stats.totalErrors', stats.totalErrors);
+            localStorage.setItem('stats.totalScore', stats.totalScore);
+            localStorage.setItem('stats.totalQuestions', stats.totalQuestions);
+        }
+        }
+
+        boutonFinir.addEventListener('click', afficherStats);
+        returnHome.addEventListener('click', retournerHome);
+
+        // Bouton pour réinitialiser les statistiques cumulées.
+        statReset.addEventListener('click', function() {
+            if (confirm('Veux-tu vraiment réinitialiser toutes les statistiques ?')) {
+                stats = { totalGames: 0, totalErrors: 0, totalScore: 0, totalQuestions: 0 };
+                localStorage.removeItem('stats.totalGames');
+                localStorage.removeItem('stats.tauxGlobal');
+                localStorage.removeItem('stats.totalErrors');
+                localStorage.removeItem('stats.totalScore');
+                localStorage.removeItem('stats.totalQuestions');
+
+                statTotalParties.textContent = '0';
+                statScoreMoyen.textContent = '—';
+                statErreursTotales.textContent = '0';
+            }
+        });
+        champReponse.addEventListener('keydown', function(evenement) {
+        if (evenement.key === "Enter") {
+            if (champReponse.value.trim() !== "") {
+            verifierReponse();
+        }}}
+    );
+
+    boiteValeur.addEventListener('wheel', function(evenement) {
+        // Empêche le défilement de la page pour que la roulette modifie la valeur
+        // au lieu de faire défiler la page.
+        evenement.preventDefault();
+
+        // Change la valeur du multiplicateur selon le sens de la roulette.
+        // deltaY < 0 = roule vers le haut -> on augmente la valeur.
+        // deltaY > 0 = roule vers le bas -> on diminue la valeur.
+        if (evenement.deltaY < 0) {
+            if (limiteMax < LIMITE_MAX_VALEUR) {
+                limiteMax++;
+            }
+        } else {
+            if (limiteMax > LIMITE_MIN_VALEUR) {
+                limiteMax--;
+            }
+        }
+
+        ajusterValeur(limiteMax);
+    });
+
+    boiteValeur.addEventListener('touchstart', function(e) {
+        e.preventDefault(); // Empêche le défilement de la page pendant le réglage
+        enTrainDeGlisser = true;
+        yDepart = e.touches[0].clientY;
+        valeurDepart = limiteMax;
+        boiteValeur.style.borderColor = '#4F46E5';
+    });
+
+    function ajusterValeur(nouvelleValeur) {
+        limiteMax = Math.max(1, Math.min(14, nouvelleValeur));
+
+        valeurMultiplicateur.textContent = limiteMax;
+
+        //On enregistre limiteMax dans le naviguateur
+        localStorage.setItem('limiteMaxCle', limiteMax);
+        multiCompris = localStorage.getItem('multiComprisCle');
+        
+        if (limiteMax !== valeurDepart && !multiCompris) {
+            multiCompris = true;
+            localStorage.setItem('multiComprisCle', multiCompris)
+            if (isMobile) {
+                infoMulti.textContent = "";
+                infoMulti.style.display = 'none';
+            } else {
+                infoMulti.textContent = "";
+                infoMulti.style.display = 'none';
+            }
+        }
+    }
+    
+
+    window.addEventListener('touchmove', function(e) {
+        if (!enTrainDeGlisser) return;
+        e.preventDefault();
+    
+        const yActuel = e.touches[0].clientY;
+        const differenceY = yDepart - yActuel; // Positif si glissement vers le haut
+    
+        // Sensibilité : 1 unité tous les 15 pixels de glissement
+        const changement = Math.round(differenceY / 15); 
+        ajusterValeur(valeurDepart + changement);
+    });
+
+    window.addEventListener('touchend', function() {
+        enTrainDeGlisser = false;
+        boiteValeur.style.borderColor = '';
+    });
+
+    //Pour click and drag
+
+    boiteValeur.addEventListener('mousedown', function(e) {
+        e.preventDefault(); // Empêche le défilement de la page pendant le réglage
+        enTrainDeGlisser = true;
+        yDepart = e.clientY;
+        valeurDepart = limiteMax;
+        boiteValeur.style.borderColor = '#4F46E5';
+    });
+
+    
+
+    window.addEventListener('mousemove', function(e) {
+        if (!enTrainDeGlisser) return;
+        e.preventDefault();
+    
+        const yActuel = e.clientY;
+        const differenceY = yDepart - yActuel; // Positif si glissement vers le haut
+    
+        // Sensibilité : 1 unité tous les 15 pixels de glissement
+        const changement = Math.round(differenceY / 15); 
+        ajusterValeur(valeurDepart + changement);
+    });
+
+    window.addEventListener('mouseup', function() {
+        enTrainDeGlisser = false;
+        boiteValeur.style.borderColor = '';
+    });
+
+
+    </script>
+</body>
+</html>
